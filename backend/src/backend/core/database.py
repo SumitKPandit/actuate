@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncIterator
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -47,3 +48,9 @@ async def init_db() -> None:
     """Create tables from `Base.metadata`."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+
+async def ping_db() -> None:
+    """Raise unless a DB round-trip succeeds. Used by `/ready`."""
+    async with engine.connect() as conn:
+        await conn.execute(text("SELECT 1"))

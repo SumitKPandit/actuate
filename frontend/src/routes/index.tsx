@@ -1,5 +1,6 @@
 
 import { createFileRoute } from "@tanstack/react-router";
+import StackStatus from "../components/StackStatus";
 
 export const Route = createFileRoute("/")({ component: App });
 
@@ -52,6 +53,8 @@ function App() {
             </article>
           ))}
       </section>
+
+      <StackStatus />
 
       <section className="island-shell mt-8 rounded-2xl p-6">
         <p className="island-kicker mb-2">Quick Start</p>
