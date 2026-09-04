@@ -1,0 +1,30 @@
+# Stories — Actuate (Transport Manager)
+
+Pickup order is numeric. Each `NN-name/` folder is one independently testable story with its own `SPEC.md`. Do not skip order: each story depends on the previous one's contracts.
+
+| # | Folder | What it delivers | Depends on |
+|---|---|---|---|
+| 01 | `01-ingest-marts/` | CSV → Postgres/SQLite: 5 raw tables + 4 marts, all messy-data rules applied | nothing (repo scaffolding only) |
+| 02 | `02-analytics-kpis/` | `core/analytics.py`: pure KPI functions for all 6 MVP KPI families | 01 (real row shapes + quirk fixtures) |
+| 03 | `03-reason-rank/` | `core/reason.py`: benchmarks, anomaly checks, contribution, severity×reach ranking | 02 |
+| 04 | `04-ops-api/` | FastAPI `api/ops.py`: `GET /overview /insights /briefing /vendors /actions` on marts | 01–03 |
+| 05 | `05-brief-ui/` | Frontend `/` brief feed: what slipped, who drives it, safety ack, next action | 04 |
+| 06 | `06-dashboard-ui/` | Frontend `/dashboard`: KPI cards + benchmark badges + vendor table + filters | 04 (can start after 05's API client pattern) |
+| 07 | `07-ask-narrate/` | `core/narrate.py` (template + Sarvam fallback) + `POST /ask` + chat drawer | 02–04 |
+| 08 | `08-triggers-docs/` | Proactive triggers, README, architecture diagram, sample inputs/outputs | 01–07 |
+
+## Global constraints (apply to every story)
+
+- Persona: **transport manager** only. Surface: **brief + dashboard + Q&A**.
+- Narration: **deterministic templates first, Sarvam LLM at edge only** (1 call per briefing/Q&A, never per row).
+- Data: **Postgres in compose, SQLite locally** via `backend/src/backend/core/database.py` (`Base`, `get_db`, `init_db`). Existing `health/ready/examples` routes stay untouched.
+- Messy-data rules live in `PLAN.md §6` + `problem-statement/dataset/dictionary/` — every story must respect them, Story 01 implements them.
+- Per `AGENTS.md`: failing test first (red terminal output) before any behavior change; run `uv run pytest` + `ruff` after every change; keep changes minimal and modular.
+- KPI definitions are frozen in `PLAN.md §4`. Do not redefine: OTA late = `delay > 15 min`; SLA OTA 95%, ack SLA 30 min; CSAT excludes 0s, `< 3` = low; `marshal_rating = 0` = unrated.
+
+## How to pick up a story
+
+1. Read its `SPEC.md` fully (Goal → Acceptance criteria → Test plan).
+2. Confirm predecessor stories are done (contracts in their SPECs hold).
+3. Write the failing tests listed in the SPEC, confirm red, then implement minimum code.
+4. Place follow-up artifacts (fixtures, samples, notes) inside the same story subfolder.
