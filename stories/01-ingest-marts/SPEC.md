@@ -1,6 +1,6 @@
 # Story 01 — Ingest + Normalization + Marts (Sense foundation)
 
-**Status:** first to pick up. **Depends on:** nothing but repo scaffolding.
+**Status:** complete (verified 2026-09-05: SQLite full load, PG alerts subset + idempotent rerun). **Depends on:** nothing but repo scaffolding.
 
 ## 1. Goal
 
@@ -42,11 +42,11 @@ Transport manager sees numbers they can trust. All 5 CSV families land in one da
 
 ## 4. Acceptance criteria
 
-- [ ] Fresh `actuate.db` / fresh Postgres volume → `python -m backend.scripts.ingest --data problem-statement/dataset/data` loads all 5 tables with row counts matching §2 (±0.5% with reason logged).
-- [ ] Spot join works: `SELECT COUNT(*) FROM alerts a JOIN trips t ON a.trip_id = t.trip_id` returns > 0 (no comma-mismatch); same for bills→trips, feedback→trips, legs→trips.
-- [ ] `SELECT COUNT(*) FROM alerts WHERE severity IS NULL` ≈ 16k + 15k `"False"`-as-null (≈31k unclassified incl. flag); `SELECT COUNT(*) FROM bills WHERE is_zero_km` > 0; negative-km legs flagged not dropped.
-- [ ] Rerun is idempotent (row counts unchanged, no duplicates).
-- [ ] `daily_kpi / vendor_kpi / office_kpi` tables exist with columns in §3.5 (rows may be stub until Story 02 fills them — schema + load path must exist).
+- [x] Fresh `actuate.db` / fresh Postgres volume → `python -m backend.scripts.ingest --data problem-statement/dataset/data` loads all 5 tables with row counts matching §2 (±0.5% with reason logged).
+- [x] Spot join works: `SELECT COUNT(*) FROM alerts a JOIN trips t ON a.trip_id = t.trip_id` returns > 0 (no comma-mismatch); same for bills→trips, feedback→trips, legs→trips.
+- [x] `SELECT COUNT(*) FROM alerts WHERE severity IS NULL` ≈ 16k + 15k `"False"`-as-null (≈31k unclassified incl. flag); `SELECT COUNT(*) FROM bills WHERE is_zero_km` > 0; negative-km legs flagged not dropped.
+- [x] Rerun is idempotent (row counts unchanged, no duplicates).
+- [x] `daily_kpi / vendor_kpi / office_kpi` tables exist with columns in §3.5 (rows may be stub until Story 02 fills them — schema + load path must exist).
 
 ## 5. Test plan (test-first, per AGENTS.md)
 
