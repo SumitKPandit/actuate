@@ -130,3 +130,7 @@ temp/
 
 # ---------- Local misc ----------
 *.local
+
+# ---------- Problem statement dataset ----------
+# Raw CSV data (large, local-only) — keep dictionary docs tracked
+problem-statement/dataset/data/
