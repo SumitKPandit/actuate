@@ -59,4 +59,27 @@ async def list_widgets(db: AsyncSession = Depends(get_db)):
     ...
 ```
 
-Models subclass `backend.models.Base`; `await init_db()` creates tables.
+Models subclass `backend.models.Base`; tables are created on app startup
+via `lifespan` (`await init_db()`), so a fresh Postgres volume works.
+
+## Docker
+
+From the repo root (requires Docker Desktop running):
+
+```bash
+docker compose up --build
+```
+
+Open:
+
+- Swagger UI: http://127.0.0.1:8000/docs
+- Health: http://127.0.0.1:8000/health
+
+Notes:
+
+- `api` builds `backend/Dockerfile` and defaults to
+  `DATABASE_URL="postgresql+asyncpg://actuate:actuate@db:5432/actuate"`.
+- `db` is `postgres:16-alpine` with data in the `pgdata` volume.
+- Override without a `.env` file, e.g.
+  `DATABASE_URL="postgresql+asyncpg://user:pass@host:5432/actuate" docker compose up --build`.
+- Postgres shell: `docker compose exec db psql -U actuate -d actuate`.

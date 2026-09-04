@@ -1,0 +1,30 @@
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: ${APP_NAME:-Actuate API}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://actuate:actuate@db:5432/actuate}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-actuate}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-actuate}
+      POSTGRES_DB: ${POSTGRES_DB:-actuate}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-actuate}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
