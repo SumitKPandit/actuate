@@ -52,6 +52,13 @@ htmlcov/
 .pyright/
 .pyre/
 
+# SQLite (local dev DBs — recreated via init_db)
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb_checkpoints

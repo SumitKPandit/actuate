@@ -1,2 +1,2 @@
 # actuate
-Agentic Intelligence &amp; Reporting Layer for Enterprise Mobility
+Agentic Intelligence & Reporting Layer for Enterprise Mobility

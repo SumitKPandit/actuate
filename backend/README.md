@@ -22,7 +22,7 @@ Open:
 src/backend/
   app.py            # create_app() factory + `app` ASGI entrypoint
   core/config.py    # pydantic-settings (env / .env)
-  core/database.py  # SQLite engine, AsyncSession, Base, get_db, init_db
+  core/database.py  # SQLite/PostgreSQL engine, Base, get_db, init_db, build_engine
   models/           # ORM models — subclass Base
   api/
     health.py       # /health probe
@@ -36,7 +36,15 @@ Copy `.env.example` to `.env` to override `APP_NAME` or `DATABASE_URL`.
 
 ## Database
 
-SQLite via SQLAlchemy 2.0 async (`aiosqlite`). Configure via `DATABASE_URL`.
+SQLite locally (zero setup), PostgreSQL when deployed. Picked by `DATABASE_URL`:
+
+```bash
+# Local (default) — file DB, no setup:
+DATABASE_URL="sqlite+aiosqlite:///./actuate.db"
+
+# Deployed — set this env var (e.g. on Render/Railway/AWS):
+DATABASE_URL="postgresql+asyncpg://actuate:actuate@localhost:5432/actuate"
+```
 
 Use in routes:
 
