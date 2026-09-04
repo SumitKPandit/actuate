@@ -68,6 +68,41 @@ async def list_widgets(db: AsyncSession = Depends(get_db)):
 Models subclass `backend.models.Base`; tables are created on app startup
 via `lifespan` (`await init_db()`), so a fresh Postgres volume works.
 
+## Ingest (Story 01)
+
+```bash
+cd backend
+PYTHONPATH=src uv run python -m backend.scripts.ingest --data ../problem-statement/dataset/data
+# Subset for dev iteration:
+PYTHONPATH=src uv run python -m backend.scripts.ingest --data ../problem-statement/dataset/data --tables trips,alerts
+# Postgres:
+PYTHONPATH=src DATABASE_URL="postgresql+asyncpg://actuate:actuate@localhost:5432/actuate" \
+  uv run python -m backend.scripts.ingest --data ../problem-statement/dataset/data
+```
+
+`--database-url` overrides `DATABASE_URL` (`settings.database_url`,
+default `sqlite+aiosqlite:///./actuate.db`). Reruns are idempotent
+(`DELETE` + reload per table). Exit `2` on schema mismatch (missing
+file/column); count deviation past ±0.5% is a warning, not a failure.
+`daily_kpi` / `vendor_kpi` / `office_kpi` / `insight_cache` schemas are
+created empty here; Story 02 fills rows.
+
+Null markers (all → `NULL`, row kept, flag where listed):
+
+| File | Marker | Meaning |
+|---|---|---|
+| `alerts_data.csv` | literal `NA` | missing (`severity`, `source`) |
+| `alerts_data.csv` | literal `False` in `severity` | bad data → `NULL` + `severity_raw='False'`, `dq_flag='severity_false'` |
+| `bill_data.csv` | literal `null` / `NA` | missing `slab_name`/`contract` (stored `NULL`; `'UNSLABBED'` is a Story-02 display rule) |
+| `Ride_data _trip-*.csv` | literal `NA` in `trip_nodal` | non-nodal trip (expected) |
+| `Ride_data _trip-*.csv` | empty `is_driver_nc`/`is_cab_nc` | May nulls (4 rows) → `NULL` |
+| `emp_Data.csv` | empty strings | `not_boarding_reason`, `signintype`, epoch nulls → `NULL` |
+
+Other rules: `trip_id`/`stwid` strip commas → `BIGINT`;
+`stwid = 0` kept with `is_placeholder=true`; negative leg km → `NULL` +
+`dq_flag='negative_km'`; `bills.total_trip_km = 0` kept with
+`is_zero_km=true`; feedback ratings stored raw incl. `0`.
+
 ## Frontend wiring
 
 CORS allows the Vite dev server (`http://localhost:3000`,

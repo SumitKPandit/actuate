@@ -2,5 +2,19 @@
 
 from backend.core.database import Base
 from backend.models.example import Example
+from backend.models.marts import DailyKpi, InsightCache, OfficeKpi, VendorKpi
+from backend.models.ops import Alert, Bill, Feedback, Leg, Trip
 
-__all__ = ["Base", "Example"]
+__all__ = [
+    "Alert",
+    "Base",
+    "Bill",
+    "DailyKpi",
+    "Example",
+    "Feedback",
+    "InsightCache",
+    "Leg",
+    "OfficeKpi",
+    "Trip",
+    "VendorKpi",
+]
