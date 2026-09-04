@@ -6,12 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "aiosqlite>=0.20",
-    "asyncpg>=0.29",
     "fastapi>=0.115.0",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
     "sqlalchemy[asyncio]>=2.0",
-    "uvicorn[standard]>=0.32.0",
+    "uvicorn>=0.32.0",
 ]
 
 [dependency-groups]
@@ -20,9 +19,6 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.8.0",
 ]
-
-[project.scripts]
-backend = "backend:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

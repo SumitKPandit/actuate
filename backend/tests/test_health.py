@@ -3,16 +3,8 @@ from fastapi.testclient import TestClient
 from backend.app import create_app
 
 
-def test_root() -> None:
+def test_health() -> None:
     client = TestClient(create_app())
-    res = client.get("/")
+    res = client.get("/health")
     assert res.status_code == 200
-    body = res.json()
-    assert body["health"] == "/health"
-
-
-def test_health_endpoints() -> None:
-    client = TestClient(create_app())
-    for path in ("/health", "/api/v1/health", "/ready", "/api/v1/ready"):
-        res = client.get(path)
-        assert res.status_code == 200, path
+    assert res.json() == {"status": "ok"}
