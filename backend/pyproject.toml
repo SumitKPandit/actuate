@@ -5,9 +5,12 @@ description = "Actuate backend — Agentic Intelligence & Reporting Layer for En
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiosqlite>=0.20",
+    "asyncpg>=0.29",
     "fastapi>=0.115.0",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
+    "sqlalchemy[asyncio]>=2.0",
     "uvicorn[standard]>=0.32.0",
 ]
 

@@ -24,6 +24,18 @@ class Settings(BaseSettings):
     # e.g. CORS_ORIGINS="https://app.example.com,https://admin.example.com"
     cors_origins: str = ""
 
+    # PostgreSQL via SQLAlchemy 2.0 async + asyncpg.
+    # e.g. "postgresql+asyncpg://actuate:actuate@localhost:5432/actuate"
+    # Tests / local fallback without Postgres: "sqlite+aiosqlite:///:memory:"
+    database_url: str = "postgresql+asyncpg://actuate:actuate@localhost:5432/actuate"
+    db_echo: bool = False
+    db_pool_size: int = 5
+    db_max_overflow: int = 10
+
+    @property
+    def is_sqlite(self) -> bool:
+        return self.database_url.startswith("sqlite")
+
     def get_cors_origins(self) -> list[str]:
         origins = [
             "http://localhost:3000",

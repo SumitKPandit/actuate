@@ -1,11 +1,21 @@
 """FastAPI application factory."""
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api import health
 from backend.api.router import v1_router
 from backend.core.config import settings
+from backend.core.database import close_db
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    yield
+    await close_db()
 
 
 def create_app() -> FastAPI:
@@ -14,6 +24,7 @@ def create_app() -> FastAPI:
         version=settings.app_version,
         description=settings.description,
         debug=settings.debug,
+        lifespan=lifespan,
     )
 
     app.add_middleware(
