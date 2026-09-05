@@ -14,6 +14,9 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  preview: {
+    allowedHosts: true,
+  },
 })
 
 export default config
