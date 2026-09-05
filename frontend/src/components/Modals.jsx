@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 function ModalShell({ open, onClose, maxWidth = 'max-w-lg', children }) {
   if (!open) return null
@@ -60,7 +60,21 @@ export function AuditModal({ open, onClose, actionTitle, timestamp }) {
   )
 }
 
-export function SafetyModal({ open, onClose, unackCount, totalOpen, incidents, onAckIncident }) {
+const INITIAL_INCIDENTS = [
+  { id: 'inc-8821', code: 'INC-8821', waiting: '47 min waiting', desc: 'Unscheduled Stop & SOS beacon • Female solo late-shift cab (Outer Ring Rd)', acked: false },
+  { id: 'inc-8817', code: 'INC-8817', waiting: '36 min waiting', desc: 'Panic Beacon Triggered • Geofence departure with female rider', acked: false },
+  { id: 'inc-8804', code: 'INC-8804', waiting: '28 min elapsed', desc: 'Route Deviation >4km • Security verified phone contact with driver', acked: true }
+]
+
+export function SafetyModal({ open, onClose, totalOpen }) {
+  const [incidents, setIncidents] = useState(INITIAL_INCIDENTS)
+  const [unackCount, setUnackCount] = useState(7)
+
+  const ackIncident = (id) => {
+    setIncidents((current) => current.map((incident) => (incident.id === id ? { ...incident, acked: true } : incident)))
+    setUnackCount((count) => Math.max(0, count - 1))
+  }
+
   return (
     <ModalShell open={open} onClose={onClose} maxWidth="max-w-2xl">
       <div className="flex items-center justify-between pb-3 border-b border-border-light">

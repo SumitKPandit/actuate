@@ -1,6 +1,6 @@
 # Story 10 — API Integration: Live Data in Brief + Dashboard, Ack Write-Path
 
-**Status:** ready — pick up immediately after Story 09 (may run before 07/08). **Depends on:** 09 (`lib/ops.ts`, hooks, harness, fixtures), 04 (ops API), 01–03 (mart data). Delivers the deferred Story 05 §3.1/§3.3 data wiring and Story 06 §3.3–§3.5 dashboard wiring; Story 05/06 status lines said "wiring pending Story 07" — corrected: this story owns it.
+**Status:** implemented (verified 2026-09-05: live brief/dashboard wiring, ack write-path, URL state, adapter/integration tests, frontend gates, and backend regression checks; compose smoke pending a running Docker daemon). **Depends on:** 09 (`lib/ops.ts`, hooks, harness, fixtures), 04 (ops API), 01–03 (mart data). Delivers the deferred Story 05 §3.1/§3.3 data wiring and Story 06 §3.3–§3.5 dashboard wiring; Story 05/06 status lines said "wiring pending Story 07" — corrected: this story owns it.
 
 ## 1. Goal
 

@@ -1,137 +1,160 @@
-import React, { useRef, useState } from 'react'
-import Header from './components/Header'
-import Toast from './components/Toast'
-import TriggerBanner from './components/TriggerBanner'
-import KpiPulse from './components/KpiPulse'
+import React, { useEffect, useRef, useState } from 'react'
+
 import AlertsSection from './components/AlertsSection'
-import RecommendedActions from './components/RecommendedActions'
 import ChatPanel from './components/ChatPanel'
 import DataQualityBar from './components/DataQualityBar'
-import { AuditModal, SafetyModal, DataQualityModal } from './components/Modals'
-import { kpis, alerts, recommendedActions, initialIncidents } from './data'
+import Header from './components/Header'
+import KpiPulse from './components/KpiPulse'
+import { AuditModal, DataQualityModal, SafetyModal } from './components/Modals'
+import RecommendedActions from './components/RecommendedActions'
+import Toast from './components/Toast'
+import TriggerBanner from './components/TriggerBanner'
+import VendorTable from './components/VendorTable'
+import { ackAction } from './lib/ops'
+import { buildActions, buildAlerts, buildKpis, getFiredTriggers } from './lib/adapters'
+import { useCycle } from './lib/useCycle'
+import { useInsights } from './lib/useInsights'
+import { useOpsData } from './lib/useOpsData'
+
+function queryParam(name) {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get(name)
+}
+
+function writeQueryParam(name, value) {
+  if (typeof window === 'undefined') return
+  const url = new URL(window.location.href)
+  if (value) url.searchParams.set(name, value)
+  else url.searchParams.delete(name)
+  window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+}
+
+function errorMessage(error) {
+  return error instanceof Error ? error.message : 'Unable to load operational data.'
+}
+
+function SurfaceSkeleton() {
+  return (
+    <div className="flex flex-col gap-4" aria-label="Loading operational brief">
+      <div className="h-28 rounded-lg bg-surface border border-border-light animate-pulse"></div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {Array.from({ length: 6 }, (_, index) => <div key={index} className="h-32 rounded-lg bg-surface border border-border-light animate-pulse"></div>)}
+      </div>
+      <div className="h-64 rounded-lg bg-surface border border-border-light animate-pulse"></div>
+    </div>
+  )
+}
 
 export default function App() {
-  // Trigger banner
+  const { cycle, cycles, setCycle } = useCycle(queryParam('cycle'))
+  const ops = useOpsData(cycle)
+  const insights = useInsights(cycle)
+
+  const [selectedVendor, setSelectedVendor] = useState(() => queryParam('vendor'))
+  const [ackOverrides, setAckOverrides] = useState({})
+  const [ackPending, setAckPending] = useState(() => new Set())
   const [bannerDismissed, setBannerDismissed] = useState(false)
-  const alert1Ref = useRef(null)
   const [alert1Highlighted, setAlert1Highlighted] = useState(false)
-  const [alert1BreakdownOpen, setAlert1BreakdownOpen] = useState(false)
-
-  const reviewAlert1 = () => {
-    setAlert1BreakdownOpen(true)
-    setAlert1Highlighted(true)
-    setTimeout(() => {
-      alert1Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 50)
-    setTimeout(() => setAlert1Highlighted(false), 1600)
-  }
-
-  const toggleAlert1Breakdown = () => setAlert1BreakdownOpen((v) => !v)
-
-  // Sev-1 safety state — 7 of 18 open incidents start unacknowledged;
-  // acknowledging a specific incident or the headline Sev-1 alert each decrement the shared counter.
-  const [incidents, setIncidents] = useState(initialIncidents)
-  const [unackCount, setUnackCount] = useState(7)
-  const totalOpen = 18
-  const [sev1Acked, setSev1Acked] = useState(false)
-
-  const decrementUnack = () => setUnackCount((c) => Math.max(0, c - 1))
-
-  const ackIncident = (id) => {
-    setIncidents((list) => {
-      const target = list.find((i) => i.id === id)
-      if (target && !target.acked) decrementUnack()
-      return list.map((i) => (i.id === id ? { ...i, acked: true } : i))
-    })
-    showToast('Incident Acknowledged', '✓ Incident logged with dispatcher acknowledgement.')
-  }
-
-  const ackSev1 = () => {
-    if (sev1Acked) return
-    setSev1Acked(true)
-    decrementUnack()
-    showToast('Sev-1 Alert Acknowledged', '✓ Acknowledged just now. Incident status logged to Safety Desk.')
-  }
-
-  // Recommended action approvals
-  const [approvedActions, setApprovedActions] = useState({})
-
-  const approveAction = (id, title) => {
-    setApprovedActions((m) => ({ ...m, [id]: true }))
-    if (id === 'act-2' && !sev1Acked) ackSev1()
-    showToast('Action Approved', '✓ Action logged to dispatch mart. Notification paged to Transport Manager.')
-  }
-
-  // Approve buttons living inside alert cards (map by alert numeric id -> approved)
-  const [approvedAlertActions, setApprovedAlertActions] = useState({})
-  const handleApproveDirectFromAlert = (title, alertNumericIdOrBadge) => {
-    // We identify by title/badge; simplest: use title as key plus mark alert card as approved via badge mapping
-    setApprovedAlertActions((m) => ({ ...m, [title]: true }))
-    showToast('Directive Acknowledged', `✓ ${title || 'Operational Directive'} executed by Transport Manager.`)
-  }
-
-  // Modals
   const [auditModal, setAuditModal] = useState({ open: false, title: '', timestamp: '' })
   const [safetyModalOpen, setSafetyModalOpen] = useState(false)
   const [dataQualityOpen, setDataQualityOpen] = useState(false)
-
-  const openAudit = (title) =>
-    setAuditModal({ open: true, title: title || 'Action Execution Confirmed', timestamp: new Date().toISOString() })
-  const openSafety = () => setSafetyModalOpen(true)
-
-  // Toast
   const [toast, setToast] = useState(null)
+  const alert1Ref = useRef(null)
   const toastTimer = useRef(null)
-  function showToast(title, message) {
+
+  useEffect(() => {
+    writeQueryParam('cycle', cycle)
+  }, [cycle])
+
+  const showToast = (title, message) => {
     setToast({ title, message })
     if (toastTimer.current) clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 3200)
   }
 
-  const copyVendorMessage = (vendor, otaVal) => {
-    const text = `OTA for ${vendor} dropped below the 95% SLA during the current cycle (${otaVal || '91.2%'} vs 95.0% SLA). Please review delayed routes and confirm corrective action.`
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(text).catch(() => {})
+  const handleCycleChange = (nextCycle) => {
+    setCycle(nextCycle)
+    writeQueryParam('cycle', nextCycle)
+  }
+
+  const handleVendorSelect = (vendor) => {
+    const nextVendor = selectedVendor === vendor ? null : vendor
+    setSelectedVendor(nextVendor)
+    writeQueryParam('vendor', nextVendor)
+  }
+
+  const reviewAlert = () => {
+    setAlert1Highlighted(true)
+    setTimeout(() => alert1Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50)
+    setTimeout(() => setAlert1Highlighted(false), 1600)
+  }
+
+  const copyVendorMessage = (text) => {
+    if (!text) return
+    const writeText = typeof navigator !== 'undefined' ? navigator.clipboard?.writeText : null
+    if (typeof writeText !== 'function') {
+      showToast('Clipboard unavailable', 'The vendor message could not be copied in this browser.')
+      return
     }
-    showToast('✓ Vendor message copied to clipboard', text)
+    Promise.resolve(writeText.call(navigator.clipboard, text)).then(
+      () => showToast('Vendor message copied', text),
+      () => showToast('Copy failed', 'Clipboard access was denied.')
+    )
   }
 
-  // Build alerts with per-card approval state (map alert.id -> approved) using titles for direct-approve buttons
-  const alertApprovedMap = {
-    1: !!approvedAlertActions['Review Vendor X penalty'],
-    3: !!approvedAlertActions['Hold Vendor Y bill line'],
-    4: !!approvedAlertActions['Add standby capacity Office B'],
-    5: !!approvedAlertActions['Inspect CSAT Cluster']
+  const fullActions = ops.data?.actions?.data || []
+  const statusById = Object.fromEntries(fullActions.map((action) => [action.id, action.status]))
+  const resolvedStatusById = { ...statusById, ...ackOverrides }
+
+  const approveAction = async (id) => {
+    if (resolvedStatusById[id] === 'acked' || ackPending.has(id)) return
+    setAckOverrides((current) => ({ ...current, [id]: 'acked' }))
+    setAckPending((current) => new Set(current).add(id))
+    try {
+      await ackAction(id, 'Transport Manager')
+      showToast('Action acknowledged', 'Action logged to the dispatch mart for Transport Manager.')
+    } catch (error) {
+      setAckOverrides((current) => {
+        const next = { ...current }
+        delete next[id]
+        return next
+      })
+      showToast('Action acknowledgement failed', errorMessage(error))
+    } finally {
+      setAckPending((current) => {
+        const next = new Set(current)
+        next.delete(id)
+        return next
+      })
+    }
   }
 
-  const pendingCount = 3 - Object.values(approvedActions).filter(Boolean).length
+  const briefingData = ops.data?.briefing?.data
+  const overviewData = ops.data?.overview?.data
+  const actionsData = ops.data?.actions?.data
+  const insightsData = insights.data || []
+  const briefReady = briefingData != null && overviewData != null && actionsData != null
+  const kpis = buildKpis(overviewData, insightsData, briefingData?.safety_open_sev1)
+  const alerts = buildAlerts(briefingData?.insights_top5)
+  const actions = buildActions(briefingData?.actions_top3, actionsData, statusById, ackOverrides)
+  const pendingCount = actions.filter((action) => action.status !== 'acked').length
 
   return (
     <div className="bg-surface-panel font-sans text-neutral-body antialiased selection:bg-primary/20 min-h-screen">
       <Toast toast={toast} />
-
       <AuditModal
         open={auditModal.open}
-        onClose={() => setAuditModal({ ...auditModal, open: false })}
+        onClose={() => setAuditModal((current) => ({ ...current, open: false }))}
         actionTitle={auditModal.title}
         timestamp={auditModal.timestamp}
       />
-      <SafetyModal
-        open={safetyModalOpen}
-        onClose={() => setSafetyModalOpen(false)}
-        unackCount={unackCount}
-        totalOpen={totalOpen}
-        incidents={incidents}
-        onAckIncident={ackIncident}
-      />
+      <SafetyModal open={safetyModalOpen} onClose={() => setSafetyModalOpen(false)} totalOpen={briefingData?.safety_open_sev1 ?? 0} />
       <DataQualityModal open={dataQualityOpen} onClose={() => setDataQualityOpen(false)} />
-
-      <Header />
+      <Header cycle={cycle} cycles={cycles} onCycleChange={handleCycleChange} />
 
       <main className="w-full pt-16 bg-surface-panel">
         <div className="flex flex-col w-full">
           <div className="px-6 py-6 flex flex-col gap-6 max-w-[1600px] mx-auto w-full">
-            {/* Pipeline nav */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-neutral-muted uppercase tracking-wider">Operational Pipeline</span>
@@ -148,62 +171,53 @@ export default function App() {
                   <span className="px-2 py-0.5 rounded-full text-[11px] bg-success-bg text-primary border border-primary/20 font-bold">ACT</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-neutral-muted text-xs">
-                <div className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px] text-neutral-muted">tune</span>
-                  <span>Sensitivity: High (0.85σ)</span>
-                </div>
+              <div className="hidden md:flex items-center gap-3 text-neutral-muted text-xs">
+                <span>Sensitivity: High (0.85σ)</span>
                 <span className="h-3 w-px bg-border-light"></span>
                 <span className="text-primary font-semibold flex items-center gap-1">● 100% telemetry live</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-              <div className="xl:col-span-8 flex flex-col gap-6">
-                <TriggerBanner
-                  dismissed={bannerDismissed}
-                  onDismiss={() => setBannerDismissed(true)}
-                  onRestore={() => setBannerDismissed(false)}
-                  onReview={reviewAlert1}
-                  cardRef={null}
-                />
+            {ops.loading && <SurfaceSkeleton />}
+            {!ops.loading && ops.error && <div role="alert" className="bg-error-bg border border-error/30 text-error rounded-lg px-4 py-3 text-sm font-semibold">Unable to load the operational brief: {errorMessage(ops.error)}</div>}
+            {!ops.loading && !ops.error && ops.warning && <div role="status" className="bg-warning-bg border border-warning/30 text-warning rounded-lg px-4 py-3 text-sm font-semibold">{ops.warning}</div>}
 
-                <KpiPulse
-                  kpis={kpis}
-                  unackCount={unackCount}
-                  onOpenSafety={openSafety}
-                  onAskCopilot={() => {}}
-                />
-
-                <AlertsSection
-                  alerts={alerts}
-                  unackCount={unackCount}
-                  onCopyVendor={copyVendorMessage}
-                  onApproveDirect={handleApproveDirectFromAlert}
-                  approvedDirect={alertApprovedMap}
-                  onOpenSafety={openSafety}
-                  onAckSev1={ackSev1}
-                  sev1Acked={sev1Acked}
-                  alert1Ref={alert1Ref}
-                  alert1Highlighted={alert1Highlighted}
-                  alert1BreakdownOpen={alert1BreakdownOpen}
-                  onAlert1Toggle={toggleAlert1Breakdown}
-                />
-
-                <RecommendedActions
-                  actions={recommendedActions}
-                  approvedMap={approvedActions}
-                  pendingCount={pendingCount}
-                  onApprove={approveAction}
-                  onOpenSafety={openSafety}
-                  onCopyVendor={copyVendorMessage}
-                  onViewAudit={openAudit}
-                />
+            {!ops.loading && !ops.error && briefReady && (
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+                <div className="xl:col-span-8 flex flex-col gap-6">
+                  <TriggerBanner
+                    triggers={getFiredTriggers(briefingData)}
+                    cycle={cycle}
+                    dismissed={bannerDismissed}
+                    onDismiss={() => setBannerDismissed(true)}
+                    onRestore={() => setBannerDismissed(false)}
+                    onReview={reviewAlert}
+                    cardRef={null}
+                  />
+                  <KpiPulse kpis={kpis} onOpenSafety={() => setSafetyModalOpen(true)} />
+                  {insights.error && <div className="text-xs text-neutral-muted">Prior-cycle deltas unavailable: {errorMessage(insights.error)}</div>}
+                  <AlertsSection
+                    alerts={alerts}
+                    statusById={resolvedStatusById}
+                    ackPending={ackPending}
+                    onApprove={approveAction}
+                    alert1Ref={alert1Ref}
+                    alert1Highlighted={alert1Highlighted}
+                  />
+                  <RecommendedActions
+                    actions={actions}
+                    pendingCount={pendingCount}
+                    ackPending={ackPending}
+                    onApprove={approveAction}
+                    onCopyVendor={copyVendorMessage}
+                    onViewAudit={(title) => setAuditModal({ open: true, title, timestamp: new Date().toISOString() })}
+                  />
+                </div>
+                <ChatPanel />
               </div>
+            )}
 
-              <ChatPanel unackCount={unackCount} onOpenSafety={openSafety} onCopyVendor={copyVendorMessage} />
-            </div>
-
+            <VendorTable cycle={cycle} selectedVendor={selectedVendor} onSelectVendor={handleVendorSelect} />
             <DataQualityBar onOpen={() => setDataQualityOpen(true)} />
           </div>
         </div>

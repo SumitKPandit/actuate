@@ -13,7 +13,7 @@ Pickup order is numeric. Each `NN-name/` folder is one independently testable st
 | 07 | `07-ask-narrate/` | `core/narrate.py` (template + Sarvam fallback) + `POST /ask` (marts-only, 422 otherwise) + chat drawer + `?narrate=true` briefing | 02–04 |
 | 08 | `08-triggers-docs/` | Proactive triggers (`triggers[]` in briefing, log only — no push), ack audit, README, architecture diagram, sample inputs/outputs | 01–07 |
 | 09 | `09-frontend-foundation/` | Frontend↔API foundation: typed `lib/ops.ts` client, vitest+msw harness, `useCycle`/`useOpsData` hooks, sample fixtures | 04 (API contracts frozen) |
-| 10 | `10-api-integration/` | Live data in brief + dashboard (replace `data.js`), ack write-path, copy-for-vendor, trigger-banner forward-compat | 09, 04–06 |
+| 10 | `10-api-integration/` | Live data in brief + dashboard (replace `data.js`), ack write-path, copy-for-vendor, trigger-banner forward-compat (implemented; compose smoke pending) | 09, 04–06 |
 
 > Pickup-order exception: Stories 09–10 depend only on 04–06 and may be picked up before 07/08. Story 07's chat drawer consumes the Story 09 client.
 

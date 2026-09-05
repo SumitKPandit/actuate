@@ -4,8 +4,8 @@ import { ApiError, getBriefing } from './ops';
 
 const DEFAULT_CYCLE = '2026-06-H1';
 
-export function useCycle() {
-  const [cycle, setCycle] = useState(DEFAULT_CYCLE);
+export function useCycle(initialCycle = DEFAULT_CYCLE) {
+  const [cycle, setCycle] = useState(initialCycle || DEFAULT_CYCLE);
   const [cycles, setCycles] = useState(null);
 
   useEffect(() => {
