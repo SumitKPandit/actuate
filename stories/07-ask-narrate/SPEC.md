@@ -9,14 +9,14 @@ Transport manager asks in plain language ("Which vendor drove June OTA drop?") a
 ## 2. Scope
 
 **In:**
-- `backend/src/backend/core/narrate.py`: `render_template(facts) -> str` + `narrate_with_sarvam(facts) -> str` with offline fallback.
+- `backend/src/backend/core/narrate.py`: `render_template(facts) -> str` + `narrate_with_sarvam(facts) -> str` with offline fallback. Same renderer powers `GET /briefing?narrate=true` (leadership-forwardable 2–3 sentence version — template by default, Sarvam when key present).
 - `POST /ask` in `api/ops.py` (or new `api/ask.py`): `{ question, cycle?, scope? }` → `{ sql, rows, narrative, grounded_from }`.
 - Frontend chat drawer (available from `/` and `/dashboard`) calling `/ask`.
 **Out:** generic SQL agent / unguarded querying (allowlist only), per-row LLM calls (forbidden).
 
 ## 3. Functional requirements
 
-1. **NL→SQL guardrails:** allowlisted query builder over marts only (`daily_kpi`, `vendor_kpi`, `office_kpi` + insight_cache). Supported intents (minimum): OTA by vendor/office, cost outlier vendor, Sev-1/open alerts, CSAT low cluster, no-show by shift/office. Anything else → 422 with `supported_intents` list. Returned `sql` is the actual executed statement (read-only `SELECT`, 1 statement, `LIMIT ≤ 50`); response includes `rows` + `grounded_from` (mart names + cycle).
+1. **NL→SQL guardrails:** allowlisted query builder over marts only (`daily_kpi`, `vendor_kpi`, `office_kpi` + insight_cache). Marts-only is load-bearing: 615k trips + 1.6M legs never reach the LLM (cost/latency + anti-hallucination); any new "ask anything" capability lands as a new mart + intent, never raw-table access. Supported intents (minimum): OTA by vendor/office, cost outlier vendor, Sev-1/open alerts, CSAT low cluster, no-show by shift/office. Anything else → 422 with `supported_intents` list. Returned `sql` is the actual executed statement (read-only `SELECT`, 1 statement, `LIMIT ≤ 50`); response includes `rows` + `grounded_from` (mart names + cycle).
 2. **Narration:** `render_template` covers all supported intents deterministically (e.g. "OTA {cycle} was {v}% vs SLA 95%. {vendor} drove {share}% of the gap ({n}/{m} late trips)."), including data-quality footnotes (unclassified severity count, zero-km share) when relevant. `narrate_with_sarvam` takes the **same facts dict only** (never raw CSV rows), calls Sarvam `sarvam-30b` via OpenAI-compatible `base_url=https://api.sarvam.ai/v1`, `reasoning_effort=None`, ~1 call per Q&A/briefing; any missing key / timeout / non-200 → template fallback (log `narrate_fallback=true`, never 500).
 3. **Briefing hook (optional, cheap):** `GET /briefing?cycle=&narrate=true` reuses `narrate.py` on headline facts; default `false` keeps Story 04 behavior (cached template).
 4. **Chat drawer UX:** floating button → side drawer; shows question, narrative, mini table (≤ 50 rows), collapsible "SQL + sources" details; loading/error/422 states; no chat history persistence (single-session list ok).

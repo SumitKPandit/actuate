@@ -7,13 +7,18 @@ Pickup order is numeric. Each `NN-name/` folder is one independently testable st
 | 01 | `01-ingest-marts/` | CSV → Postgres/SQLite: 5 raw tables + 4 marts, all messy-data rules applied | nothing (repo scaffolding only) |
 | 02 | `02-analytics-kpis/` | `core/analytics.py`: pure KPI functions for all 6 MVP KPI families | 01 (real row shapes + quirk fixtures) |
 | 03 | `03-reason-rank/` | `core/reason.py`: benchmarks, anomaly checks, contribution, severity×reach ranking | 02 |
-| 04 | `04-ops-api/` | FastAPI `api/ops.py`: `GET /overview /insights /briefing /vendors /actions` on marts | 01–03 |
-| 05 | `05-brief-ui/` | Frontend `/` brief feed: what slipped, who drives it, safety ack, next action | 04 |
+| 04 | `04-ops-api/` | FastAPI `api/ops.py`: `GET /overview /insights /briefing /vendors /actions` + `POST /actions/{id}/ack` on marts | 01–03 |
+| 05 | `05-brief-ui/` | Frontend `/` brief feed: trigger banner, what slipped, who drives it, safety ack, next action + ack button | 04 |
 | 06 | `06-dashboard-ui/` | Frontend `/dashboard`: KPI cards + benchmark badges + vendor table + filters | 04 (can start after 05's API client pattern) |
-| 07 | `07-ask-narrate/` | `core/narrate.py` (template + Sarvam fallback) + `POST /ask` + chat drawer | 02–04 |
-| 08 | `08-triggers-docs/` | Proactive triggers, README, architecture diagram, sample inputs/outputs | 01–07 |
+| 07 | `07-ask-narrate/` | `core/narrate.py` (template + Sarvam fallback) + `POST /ask` (marts-only, 422 otherwise) + chat drawer + `?narrate=true` briefing | 02–04 |
+| 08 | `08-triggers-docs/` | Proactive triggers (`triggers[]` in briefing, log only — no push), ack audit, README, architecture diagram, sample inputs/outputs | 01–07 |
 
 ## Global constraints (apply to every story)
+
+- Persona: **transport manager** only (briefing is forwardable to head without rework). Surface: **brief + dashboard + Q&A**.
+- Proactive = **pull-proactive**: triggers fire on mart refresh, surface in `/briefing` without prompt. No Email/Slack push — `{fired, scope, insight_id}` stays push-ready.
+- Act = **recommend + human-ack**: `GET /actions` proposes (`proposed`), `POST /actions/{id}/ack` records approval/mock-execution. No real vendor integration.
+- Q&A = **marts-only**: allowlisted `SELECT` over `daily_kpi/vendor_kpi/office_kpi/insight_cache`, `LIMIT 50`; anything else → 422 + `supported_intents`. New questions land as new marts, never raw-table access.
 
 - Persona: **transport manager** only. Surface: **brief + dashboard + Q&A**.
 - Narration: **deterministic templates first, Sarvam LLM at edge only** (1 call per briefing/Q&A, never per row).

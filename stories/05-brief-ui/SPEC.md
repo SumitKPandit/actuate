@@ -16,23 +16,25 @@ Transport manager opens `/` and in < 30 seconds knows: what slipped, which vendo
 1. **Data:** on load, `GET /briefing?cycle=` + `GET /actions?cycle=` (cycle selector defaults to latest; options from API 404 payload or `/overview` cycles). Loading / error / empty-marts-warning states required (surface API `warning` verbatim).
 2. **Layout (top→bottom):**
    - Cycle selector + `generated_at` stamp + benchmark chips (OTA SLA 95% · Ack 30 min).
-   - Headline facts (3–5 template strings from `/briefing`).
+   - Trigger banner (from `/briefing.triggers[]`, lands in Story 08 — render defensively now: red banner if any `fired=true` with trigger name + scope, hidden when empty array; never crash on missing key).
+   - Headline facts (3–5 template strings from `/briefing`; Story 07 `?narrate=true` version is drop-in text swap later).
    - Ranked exception feed (top 5): each card shows KPI, scope (vendor/office/cycle), current vs baseline Δ, severity badge, reach (trips), contribution ("2 vendors = X% of gap"), recommended action + owner.
    - Safety strip: open Sev-1 count + unacknowledged count + oldest unacked age; links to dashboard vendor filter (Story 06 hook — keep as query param `?vendor=` even if dashboard lands later).
-   - Actions: top 3 with owner chip + **Copy-for-vendor button** (clipboard, ≤ 500 chars, toast confirm).
+   - Actions: top 3 with owner chip + status chip (`proposed/acked` from Story 04) + **Copy-for-vendor button** (clipboard, ≤ 500 chars, toast confirm) + **Ack button** calling `POST /actions/{id}/ack` (optimistic status flip, error toast on 404).
 3. **Performance/robustness:** no per-row rendering (aggregate cards only); API base missing → inline error naming `VITE_API_URL`; brief cached server-side so page needs ≤ 2 fetches.
 4. **Style:** reuse existing tokens in `src/styles.css` (`island-shell`, etc.); no new design system; mobile-readable single column.
 
 ## 4. Acceptance criteria
 
 - [ ] With API stubbed (msw or fixture JSON in `stories/05-brief-ui/sample-briefing.json`), page shows all §3.2 sections with correct numbers/badges.
+- [ ] Trigger banner: fixture with `triggers:[{fired:true}]` shows red banner; `triggers:[]` or missing key shows nothing (forward-compatible with pre-Story-08 API).
 - [ ] Copy-for-vendor copies exact `copy_for_vendor` string (test asserts clipboard content).
 - [ ] Empty-marts warning from API renders as banner, not blank page.
 - [ ] `npm run build` + `eslint` clean; existing `/about` route unaffected.
 
 ## 5. Test plan
 
-- Component/integration test (Vitest + Testing Library — add if missing, minimal): `brief renders feed`, `copy button`, `empty warning`, `loading state`.
+- Component/integration test (Vitest + Testing Library — add if missing, minimal): `brief renders feed`, `trigger banner fire/no-fire`, `copy button`, `ack button calls POST`, `empty warning`, `loading state`.
 - Manual check: `docker compose up --build` → `http://127.0.0.1:3000` shows live `/briefing` data; note result in story folder.
 - No backend changes in this story (mock at fetch boundary).
 

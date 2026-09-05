@@ -1,3 +1,7 @@
+# Actuate web (TanStack Start) — transport manager brief + dashboard + Q&A
+
+> Story 05 (`/`) brief feed: trigger banner + headline facts + ranked exceptions + safety strip + actions (copy-for-vendor + ack). Story 06 (`/dashboard`) KPI cards + vendor table. Story 07 chat drawer → `POST /ask`. Full rewrite lands in Story 08; TanStack starter docs below are scaffolding until then.
+
 Welcome to your new TanStack Start app!
 
 # Getting Started

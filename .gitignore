@@ -59,6 +59,7 @@ htmlcov/
 *.db-journal
 *.sqlite
 *.sqlite3
+pgdata/
 
 # Jupyter
 .ipynb_checkpoints/

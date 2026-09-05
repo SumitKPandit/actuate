@@ -103,6 +103,14 @@ Other rules: `trip_id`/`stwid` strip commas → `BIGINT`;
 `dq_flag='negative_km'`; `bills.total_trip_km = 0` kept with
 `is_zero_km=true`; feedback ratings stored raw incl. `0`.
 
+## Roadmap (Stories 02–08, not yet implemented)
+
+- Story 02 `core/analytics.py`: pure KPI math per `PLAN.md §4` (OTA >15min, cost/km excl. zero-km, CSAT excl. 0s).
+- Story 03 `core/reason.py`: SLA/prior/peer benchmarks + contribution + severity×reach rank.
+- Story 04 `api/ops.py`: `GET /overview /insights /briefing /vendors /actions` (marts-only) + `POST /actions/{id}/ack` (human approval, mock-execution + audit in `insight_cache`).
+- Story 07 `core/narrate.py` + `POST /ask`: marts-only allowlisted `SELECT` (`LIMIT 50`), 422 + `supported_intents` otherwise; `GET /briefing?narrate=true` leadership paragraph (template fallback, Sarvam `sarvam-30b` when `SARVAM_API_KEY` set).
+- Story 08 `core/triggers.py`: Sev-1 spike / OTA drop / cost outlier → `triggers[]` in `/briefing` + log (no push infra; `{fired,scope,insight_id}` push-ready).
+
 ## Frontend wiring
 
 CORS allows the Vite dev server (`http://localhost:3000`,
