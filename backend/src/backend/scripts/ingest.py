@@ -23,6 +23,7 @@ from sqlalchemy import delete
 import backend.models  # noqa: F401  # register tables on Base.metadata
 from backend.core.config import settings
 from backend.core.database import Base, build_engine
+from backend.core.marts import populate_marts
 from backend.core.normalize import (
     is_real_rider,  # noqa: F401  (re-exported for Story 02 use)
     norm_bool,
@@ -447,11 +448,19 @@ async def run_ingest(
                 "min": date_min.isoformat() if date_min is not None else None,
                 "max": date_max.isoformat() if date_max is not None else None,
             }
+
+        mart_counts = {}
+        async with engine.begin() as conn:
+            mart_counts = await populate_marts(conn)
     finally:
         await engine.dispose()
 
     _print_report(counts, flags, dates)
-    return {"counts": counts, "flags": dict(flags), "dates": dates}
+    if mart_counts:
+        print("== mart load report ==")
+        for table, n in mart_counts.items():
+            print(f"{table}: {n} rows")
+    return {"counts": counts, "flags": dict(flags), "dates": dates, "mart_counts": mart_counts}
 
 
 def _print_report(counts: dict[str, int], flags: Counter, dates: dict) -> None:
