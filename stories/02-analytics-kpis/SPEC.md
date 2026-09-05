@@ -1,6 +1,6 @@
 # Story 02 — KPI Analytics `core/analytics.py` (pure functions)
 
-**Status:** pick up after Story 01. **Depends on:** 01 (raw table shapes + quirk fixtures).
+**Status:** complete (verified 2026-09-05: 22 analytics tests + 41 full suite green, ruff clean, no forbidden imports). **Depends on:** 01 (raw table shapes + quirk fixtures).
 
 ## 1. Goal
 
@@ -24,10 +24,10 @@ All functions take plain rows/dicts (or pandas-free iterables — no pandas depe
 
 ## 4. Acceptance criteria
 
-- [ ] Each KPI has ≥1 unit test with hand-computed expected value (e.g. 100 trips, 5 late → OTA 95.0).
-- [ ] Edge cases return `None`/explicit counts, never crash: empty input, all-zero-km, all ratings 0, all severity NULL, zero trips.
-- [ ] `ruff` clean; functions < ~40 lines each, one KPI per function (modularity per AGENTS.md).
-- [ ] No imports from `database`, `fastapi`, `httpx`, or any LLM SDK.
+- [x] Each KPI has ≥1 unit test with hand-computed expected value (e.g. 100 trips, 5 late → OTA 95.0).
+- [x] Edge cases return `None`/explicit counts, never crash: empty input, all-zero-km, all ratings 0, all severity NULL, zero trips.
+- [x] `ruff` clean; functions < ~40 lines each, one KPI per function (modularity per AGENTS.md).
+- [x] No imports from `database`, `fastapi`, `httpx`, or any LLM SDK.
 
 ## 5. Test plan (test-first)
 
