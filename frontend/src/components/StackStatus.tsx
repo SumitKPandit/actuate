@@ -10,7 +10,7 @@ import {
 
 function StatusDot({ ok }: { ok: boolean | undefined }) {
   const color =
-    ok === undefined ? 'bg-gray-400' : ok ? 'bg-emerald-500' : 'bg-red-500'
+    ok === undefined ? 'bg-[#E5E7EB]' : ok ? 'bg-[#43B02A]' : 'bg-[#D92D20]'
   return <span className={`inline-block h-2 w-2 rounded-full ${color}`} />
 }
 
@@ -49,15 +49,15 @@ export default function StackStatus() {
   const dbUp = readiness.data?.db === 'up'
 
   return (
-    <section className="island-shell mt-8 rounded-2xl p-6">
-      <p className="island-kicker mb-2">Full-stack wiring</p>
-      <h2 className="mb-2 text-base font-semibold text-[var(--sea-ink)]">
+    <section className="island-shell mt-20 rounded-lg p-6">
+      <p className="island-kicker mb-2">FULL-STACK WIRING</p>
+      <h2 className="mb-2 text-lg leading-[22px] font-semibold text-[#1F1F1F]">
         Backend &amp; database status
       </h2>
-      <p className="m-0 mb-4 text-sm text-[var(--sea-ink-soft)]">
+      <p className="m-0 mb-4 text-sm text-[#6B7280]">
         API: <code>{getApiBaseUrl()}</code>
       </p>
-      <ul className="m-0 mb-4 list-none space-y-2 p-0 text-sm text-[var(--sea-ink-soft)]">
+      <ul className="m-0 mb-4 list-none space-y-2 p-0 text-sm text-[#333333]">
         <li className="flex items-center gap-2">
           <StatusDot ok={health.data ? apiUp : undefined} />
           API <code>/health</code>:{' '}
@@ -87,14 +87,14 @@ export default function StackStatus() {
         </li>
       </ul>
       {examples.data && examples.data.length > 0 && (
-        <ul className="m-0 mb-4 list-disc space-y-1 pl-5 text-sm text-[var(--sea-ink-soft)]">
+        <ul className="m-0 mb-4 list-disc space-y-1 pl-5 text-sm text-[#333333]">
           {examples.data.slice(-5).map((row) => (
             <li key={row.id}>{row.content}</li>
           ))}
         </ul>
       )}
       <form
-        className="flex flex-wrap gap-2"
+        className="flex flex-wrap gap-3"
         onSubmit={(e) => {
           e.preventDefault()
           const content = draft.trim()
@@ -106,18 +106,18 @@ export default function StackStatus() {
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Write a test row (proves DB write)"
           maxLength={280}
-          className="min-w-52 flex-1 rounded-full border border-[var(--line)] bg-white/60 px-4 py-2 text-sm text-[var(--sea-ink)]"
+          className="demo-input min-w-52 flex-1"
         />
         <button
           type="submit"
           disabled={create.isPending || draft.trim().length === 0}
-          className="rounded-full border border-[rgba(50,143,151,0.3)] bg-[rgba(79,184,178,0.14)] px-5 py-2 text-sm font-semibold text-[var(--lagoon-deep)] transition hover:-translate-y-0.5 disabled:opacity-50"
+          className="demo-button"
         >
           {create.isPending ? 'Saving…' : 'Save row'}
         </button>
       </form>
       {create.isError && (
-        <p className="m-0 mt-2 text-sm text-red-600">
+        <p className="m-0 mt-2 text-sm text-[#D92D20]">
           Write failed: {errorMessage(create.error)}
         </p>
       )}

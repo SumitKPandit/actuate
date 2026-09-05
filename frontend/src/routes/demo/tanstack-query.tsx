@@ -8,25 +8,28 @@ export const Route = createFileRoute('/demo/tanstack-query')({
 function TanStackQueryDemo() {
   const { data } = useQuery({
     queryKey: ['todos'],
-    queryFn: () => Promise.resolve([
-      { id: 1, name: 'Alice' },
-      { id: 2, name: 'Bob' },
-      { id: 3, name: 'Charlie' },
-    ]),
+    queryFn: () =>
+      Promise.resolve([
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+        { id: 3, name: 'Charlie' },
+      ]),
     initialData: [],
   })
 
   return (
     <main className="demo-page demo-center">
       <section className="demo-panel w-full max-w-2xl">
-        <p className="island-kicker mb-2">TanStack Query</p>
+        <p className="island-kicker mb-2">TANSTACK QUERY</p>
         <h1 className="demo-title mb-6">
           TanStack Query Simple Promise Handling
         </h1>
-        <ul className="mb-4 space-y-2">
+        <ul className="mb-4 space-y-2 p-0 list-none">
           {data.map((todo) => (
             <li key={todo.id} className="demo-list-item">
-              <span className="text-base font-medium">{todo.name}</span>
+              <span className="text-base font-medium text-[#1F1F1F]">
+                {todo.name}
+              </span>
             </li>
           ))}
         </ul>
@@ -34,6 +37,3 @@ function TanStackQueryDemo() {
     </main>
   )
 }
-
-
-
