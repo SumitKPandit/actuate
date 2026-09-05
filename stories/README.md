@@ -8,8 +8,8 @@ Pickup order is numeric. Each `NN-name/` folder is one independently testable st
 | 02 | `02-analytics-kpis/` | `core/analytics.py`: pure KPI functions for all 6 MVP KPI families | 01 (real row shapes + quirk fixtures) |
 | 03 | `03-reason-rank/` | `core/reason.py`: benchmarks, anomaly checks, contribution, severity×reach ranking | 02 |
 | 04 | `04-ops-api/` | FastAPI `api/ops.py`: `GET /overview /insights /briefing /vendors /actions` + `POST /actions/{id}/ack` on marts | 01–03 |
-| 05 | `05-brief-ui/` | Frontend `/` brief feed: trigger banner, what slipped, who drives it, safety ack, next action + ack button | 04 |
-| 06 | `06-dashboard-ui/` | Frontend `/dashboard`: KPI cards + benchmark badges + vendor table + filters | 04 (can start after 05's API client pattern) |
+| 05 | `05-brief-ui/` | Frontend `/` brief feed + foundation: typed API client (`lib/ops.ts`), vitest harness, conditional routing, Header nav | 04 (API contracts), 01–03 (mart data) |
+| 06 | `06-dashboard-ui/` | Frontend `/dashboard`: 6 KPI cards + benchmark badges + sortable vendor table + URL filters | 05 (foundation), 04 (`/overview`, `/vendors`) |
 | 07 | `07-ask-narrate/` | `core/narrate.py` (template + Sarvam fallback) + `POST /ask` (marts-only, 422 otherwise) + chat drawer + `?narrate=true` briefing | 02–04 |
 | 08 | `08-triggers-docs/` | Proactive triggers (`triggers[]` in briefing, log only — no push), ack audit, README, architecture diagram, sample inputs/outputs | 01–07 |
 
