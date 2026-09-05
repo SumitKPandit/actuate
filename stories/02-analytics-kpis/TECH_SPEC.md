@@ -144,13 +144,14 @@ csat_stats(rows) -> dict
 ### 4.2 `delay_stats(rows, group_key=None) -> dict`
 
 - Per group: `{n, late_count, avg_delay_min, reason_mix}`.
-- `n` = rows with finite `delay_minutes`; `avg_delay_min` = mean, `None`
-  when `n == 0`.
-- `reason_mix`: `delay_reason` upper-stripped; buckets `REASONS` +
-  `"UNKNOWN"` (`None`/other). `{reason: {count, share}}`; shares are 0–1
-  fractions over group `n` (rows with finite `delay_minutes` — rows missing
-  `delay_minutes` are excluded from both `n` and `reason_mix` even when a
-  reason string is present). `None` group → all shares `None`.
+- `n` = rows with finite `delay_minutes`; `avg_delay_min` = mean over all
+  `n`, `None` when `n == 0`. `late_count` = rows with `delay > 15.0`.
+- `reason_mix`: **late-only** — `delay_reason` upper-stripped on late rows
+  only; buckets `REASONS` + `"UNKNOWN"` (`None`/other).
+  `{reason: {count, share}}`; shares are 0–1 fractions over group
+  `late_count` (`count / late_count`; rows missing `delay_minutes` and all
+  on-time rows `<= 15.0` are excluded from both counts and shares).
+  `late_count == 0` → all counts `0`, shares `None`.
   Independently rounded per §2.3, so the shares may not sum to exactly 1.0.
 
 ### 4.3 `no_show_stats(rows, group_key=None) -> dict`
@@ -261,7 +262,12 @@ csat_stats(rows) -> dict
     correctly; missing vendor → `"UNKNOWN"`.
   - `test_ota_empty_returns_none`: `[]` and all-`None` → `ota_pct None`.
   - `test_delay_avg_and_reason_mix`: 4 rows (`NODELAY 0, TRAFFIC 20,
-    DRIVER 30, None 10`) → `avg 15.0`, shares `0.25` each (fractions).
+    DRIVER 30, None 10`) → `avg 15.0`, late-only shares `TRAFFIC 0.5`,
+    `DRIVER 0.5`, `NODELAY/UNKNOWN/EMPLOYEE 0.0` (fractions).
+  - `test_reason_mix_late_only_excludes_on_time`: on-time `TRAFFIC 0`
+    excluded from counts/shares.
+  - `test_reason_mix_no_late_shares_none`: `late_count 0` → counts `0`,
+    shares `None`.
   - `test_delay_all_none`: all-`None` delays → `n=0, avg None`, reason shares
     `None`.
   - `test_no_show_rate` (+ split): 10 legs / 2 `True` → `20.0`; grouped by

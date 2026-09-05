@@ -75,13 +75,15 @@ def delay_stats(rows, group_key=None):
             if not math.isfinite(v):
                 continue
             vals.append(float(v))
+            if float(v) <= LATE_THRESHOLD_MIN:
+                continue
             raw = _get(r, "delay_reason")
             b = raw.strip().upper() if isinstance(raw, str) else ""
             counts[b if b in REASONS else "UNKNOWN"] += 1
         n = len(vals)
         late = sum(1 for d in vals if d > LATE_THRESHOLD_MIN)
         avg = _r2(sum(vals) / n) if n else None
-        mix = {k: {"count": c, "share": _r2(c / n) if n else None} for k, c in counts.items()}
+        mix = {k: {"count": c, "share": _r2(c / late) if late else None} for k, c in counts.items()}
         out[g] = {"n": n, "late_count": late, "avg_delay_min": avg, "reason_mix": mix}
     return out
 

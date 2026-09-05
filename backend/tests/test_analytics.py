@@ -60,11 +60,40 @@ def test_delay_avg_and_reason_mix() -> None:
     assert got["n"] == 4
     assert got["late_count"] == 2
     assert got["avg_delay_min"] == 15.0
-    assert got["reason_mix"]["NODELAY"] == {"count": 1, "share": 0.25}
-    assert got["reason_mix"]["TRAFFIC"] == {"count": 1, "share": 0.25}
-    assert got["reason_mix"]["DRIVER"] == {"count": 1, "share": 0.25}
-    assert got["reason_mix"]["UNKNOWN"] == {"count": 1, "share": 0.25}
+    # reason_mix is late-only: on-time rows (0/NODELAY, 10/None) excluded.
+    assert got["reason_mix"]["NODELAY"] == {"count": 0, "share": 0.0}
+    assert got["reason_mix"]["TRAFFIC"] == {"count": 1, "share": 0.5}
+    assert got["reason_mix"]["DRIVER"] == {"count": 1, "share": 0.5}
+    assert got["reason_mix"]["UNKNOWN"] == {"count": 0, "share": 0.0}
     assert got["reason_mix"]["EMPLOYEE"] == {"count": 0, "share": 0.0}
+
+
+def test_reason_mix_late_only_excludes_on_time() -> None:
+    rows = [
+        {"delay_minutes": 0.0, "delay_reason": "TRAFFIC"},
+        {"delay_minutes": 20.0, "delay_reason": "TRAFFIC"},
+        {"delay_minutes": 30.0, "delay_reason": "DRIVER"},
+        {"delay_minutes": 40.0, "delay_reason": None},
+    ]
+    got = delay_stats(rows)["all"]
+    assert got["late_count"] == 3
+    assert got["reason_mix"]["TRAFFIC"] == {"count": 1, "share": 0.33}
+    assert got["reason_mix"]["DRIVER"] == {"count": 1, "share": 0.33}
+    assert got["reason_mix"]["UNKNOWN"] == {"count": 1, "share": 0.33}
+    assert got["reason_mix"]["NODELAY"] == {"count": 0, "share": 0.0}
+
+
+def test_reason_mix_no_late_shares_none() -> None:
+    rows = [
+        {"delay_minutes": 0.0, "delay_reason": "NODELAY"},
+        {"delay_minutes": 10.0, "delay_reason": "TRAFFIC"},
+    ]
+    got = delay_stats(rows)["all"]
+    assert got["n"] == 2
+    assert got["late_count"] == 0
+    for bucket in ("NODELAY", "TRAFFIC", "DRIVER", "EMPLOYEE", "UNKNOWN"):
+        assert got["reason_mix"][bucket]["count"] == 0
+        assert got["reason_mix"][bucket]["share"] is None
 
 
 def test_delay_all_none() -> None:

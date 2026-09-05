@@ -15,7 +15,7 @@ Frontend and Q&A have one fast, cached, mart-backed API. Transport manager's bri
 
 Base: all endpoints read marts (`daily_kpi`, `vendor_kpi`, `office_kpi`, `insight_cache`); query params `cycle` (e.g. `2026-06-H1`), `office`, `vendor`, `business_unit`. All responses JSON, ISO dates, rounded to 1 decimal for % / 2 for cost.
 
-1. `GET /overview?cycle=&office=&vendor=` → KPI snapshot for filters: `{ trips, ota_pct, avg_delay_min, delay_reason_mix, no_show_rate, cost_per_trip, cost_per_km, zero_km_share, alert_rate_per_1k, sev1_count, ack_sla_met_share, csat_avg, low_rating_share }` + `benchmarks: { ota_sla: 95, ack_sla_min: 30 }`.
+1. `GET /overview?cycle=&office=&vendor=` → KPI snapshot for filters: `{ trips, ota_pct, avg_delay_min, delay_reason_mix (late-only shares, `count / late_count`), no_show_rate, cost_per_trip, cost_per_km, zero_km_share, alert_rate_per_1k, sev1_count, ack_sla_met_share, csat_avg, low_rating_share }` + `benchmarks: { ota_sla: 95, ack_sla_min: 30 }`.
 2. `GET /insights?cycle=` → ranked exception list from Story 03 schema (compute on mart read, or read `insight_cache` if fresh — document choice; max age 6h via `computed_at`).
 3. `GET /briefing?cycle=` → `{ generated_at, headline_facts[3-5 strings, template-rendered], insights_top5, safety_open_sev1, actions_top3 }`. No LLM call here (Story 07 adds optional `?narrate=true` later). Cached in `insight_cache` under `briefing:{cycle}`. Story 08 extends (not breaks) this shape with `triggers[]`.
 4. `GET /vendors?cycle=&sort=ota|cost|alerts|csat` → vendor rows with peer rank per KPI + `contribution_share` to delay/cost gap. Explicit `UNSLABBED`/zero-km counts included.
