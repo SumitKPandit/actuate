@@ -18,6 +18,10 @@ class Base(DeclarativeBase):
     """Declarative base for all ORM models. Import in `backend.models`."""
 
 
+def is_postgres_url(database_url: str) -> bool:
+    return database_url.startswith("postgresql+")
+
+
 def build_engine(database_url: str = settings.database_url) -> AsyncEngine:
     """Build an async engine for either backend.
 
@@ -31,7 +35,7 @@ def build_engine(database_url: str = settings.database_url) -> AsyncEngine:
             database_url,
             connect_args={"check_same_thread": False},
         )
-    return create_async_engine(database_url, pool_pre_ping=True)
+    return create_async_engine(database_url, echo=True)
 
 
 engine = build_engine()
@@ -47,6 +51,8 @@ async def get_db() -> AsyncIterator[AsyncSession]:
 async def init_db() -> None:
     """Create tables from `Base.metadata`."""
     async with engine.begin() as conn:
+        if is_postgres_url(str(engine.url)):
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(Base.metadata.create_all)
 
 

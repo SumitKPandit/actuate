@@ -42,6 +42,14 @@ or `CORS_ORIGINS` (JSON array, defaults cover `localhost:3000`).
 
 ## Database
 
+## pgvector
+
+The agent knowledge store uses pgvector with 384-dimensional embeddings from
+`sentence-transformers/all-MiniLM-L6-v2`. Docker Compose uses the official
+`pgvector/pgvector:pg16` image; startup runs `CREATE EXTENSION IF NOT EXISTS vector`
+before creating the `knowledge_chunks` table and its cosine-distance HNSW index.
+SQLite remains suitable for the existing API tests but does not provide vector search.
+
 SQLite locally (zero setup), PostgreSQL when deployed. Picked by `DATABASE_URL`:
 
 ```bash
@@ -131,6 +139,42 @@ curl "http://127.0.0.1:8000/overview?cycle=2026-06-H1"
 
 Local dev: after pulling, recreate mart tables in `actuate.db` (new nullable columns; `init_db` only creates missing tables).
 
+## Mobility agent API
+
+The deterministic agent layer works without an LLM or external integrations. It
+reads the same precomputed marts as the ops API, uses `IsolationForest` for
+daily anomalies when enough complete observations exist, and uses transparent
+threshold checks for smaller datasets. No action sends an external message.
+
+`GET /api/agents`, `GET /api/agent/workflow`, and
+`POST /api/agents/{agent_name}/run` expose the five specialist agents.
+`GET /api/dashboard`, `/api/overview`, `/api/insights`, `/api/vendors`,
+`/api/briefing`, `/api/actions`, and `/api/report/leadership` provide
+mart-backed decision views. `POST /api/agent/ask` selects an agent using the
+question and returns supporting metrics, benchmarks, and a recommendation.
+
+`POST /api/agent/action` is safe by design: pass `approved: false` to receive
+`approval_required`; with `approved: true` it returns `executed_demo` and does
+not send email, chat, or vendor notifications.
+
+## MoveInSync dataset API
+
+The uploaded `backend/data/moveinsync/trip_feedback_clean.csv` is loaded once per
+process by `backend.services.moveinsync_data` (pandas, cached in memory) and
+exposed read-only. No dataset values are hardcoded; columns and aggregations are
+inspected from the real schema at runtime.
+
+| Method | Path | Query | Description |
+|---|---|---|---|
+| GET | `/api/dataset/info` | — | `{dataset, rows, columns, column_names, missing_values, duplicate_rows}` |
+| GET | `/api/dataset/sample` | `limit=5` | up to 5 (or `limit`) actual JSON-safe rows |
+| GET | `/api/agent/execution-trace` | — | latest agent execution over the CSV: `{agent, dataset, rows_analyzed, columns_used, steps, traces[]}` |
+
+`POST /api/agents/operations_agent/run` and
+`POST /api/agents/analytics_agent/run` analyze the real CSV (cached dataframe)
+and record an execution trace. Fields that do not exist in the current schema
+(`vendor`, `route_id`, OTA, delays, cost) are reported as `not_available`
+instead of invented.
 ## Frontend wiring
 
 CORS allows the Vite dev server (`http://localhost:3000`,

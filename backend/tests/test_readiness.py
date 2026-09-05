@@ -29,6 +29,10 @@ def test_ready_down_returns_503(monkeypatch) -> None:
     async def boom() -> None:
         raise RuntimeError("db down")
 
+    async def skip_init() -> None:
+        return None
+
+    monkeypatch.setattr(database, "init_db", skip_init)
     monkeypatch.setattr(database, "ping_db", boom)
     with TestClient(create_app()) as client:
         res = client.get("/ready")

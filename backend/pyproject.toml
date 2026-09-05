@@ -8,8 +8,12 @@ dependencies = [
     "aiosqlite>=0.20",
     "asyncpg>=0.29",
     "fastapi>=0.115.0",
+    "pandas>=2.2",
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
+    "pgvector>=0.3.6",
+    "scikit-learn>=1.5",
+    "sentence-transformers>=3.0.0",
     "sqlalchemy[asyncio]>=2.0",
     "uvicorn>=0.32.0",
 ]

@@ -43,14 +43,20 @@ export default function App() {
       if (target && !target.acked) decrementUnack()
       return list.map((i) => (i.id === id ? { ...i, acked: true } : i))
     })
-    showToast('Incident Acknowledged', '✓ Incident logged with dispatcher acknowledgement.')
+    showToast(
+      'Incident Acknowledged',
+      '✓ Incident logged with dispatcher acknowledgement.',
+    )
   }
 
   const ackSev1 = () => {
     if (sev1Acked) return
     setSev1Acked(true)
     decrementUnack()
-    showToast('Sev-1 Alert Acknowledged', '✓ Acknowledged just now. Incident status logged to Safety Desk.')
+    showToast(
+      'Sev-1 Alert Acknowledged',
+      '✓ Acknowledged just now. Incident status logged to Safety Desk.',
+    )
   }
 
   // Recommended action approvals
@@ -59,7 +65,10 @@ export default function App() {
   const approveAction = (id, title) => {
     setApprovedActions((m) => ({ ...m, [id]: true }))
     if (id === 'act-2' && !sev1Acked) ackSev1()
-    showToast('Action Approved', '✓ Action logged to dispatch mart. Notification paged to Transport Manager.')
+    showToast(
+      'Action Approved',
+      '✓ Action logged to dispatch mart. Notification paged to Transport Manager.',
+    )
   }
 
   // Approve buttons living inside alert cards (map by alert numeric id -> approved)
@@ -67,16 +76,27 @@ export default function App() {
   const handleApproveDirectFromAlert = (title, alertNumericIdOrBadge) => {
     // We identify by title/badge; simplest: use title as key plus mark alert card as approved via badge mapping
     setApprovedAlertActions((m) => ({ ...m, [title]: true }))
-    showToast('Directive Acknowledged', `✓ ${title || 'Operational Directive'} executed by Transport Manager.`)
+    showToast(
+      'Directive Acknowledged',
+      `✓ ${title || 'Operational Directive'} executed by Transport Manager.`,
+    )
   }
 
   // Modals
-  const [auditModal, setAuditModal] = useState({ open: false, title: '', timestamp: '' })
+  const [auditModal, setAuditModal] = useState({
+    open: false,
+    title: '',
+    timestamp: '',
+  })
   const [safetyModalOpen, setSafetyModalOpen] = useState(false)
   const [dataQualityOpen, setDataQualityOpen] = useState(false)
 
   const openAudit = (title) =>
-    setAuditModal({ open: true, title: title || 'Action Execution Confirmed', timestamp: new Date().toISOString() })
+    setAuditModal({
+      open: true,
+      title: title || 'Action Execution Confirmed',
+      timestamp: new Date().toISOString(),
+    })
   const openSafety = () => setSafetyModalOpen(true)
 
   // Toast
@@ -101,7 +121,7 @@ export default function App() {
     1: !!approvedAlertActions['Review Vendor X penalty'],
     3: !!approvedAlertActions['Hold Vendor Y bill line'],
     4: !!approvedAlertActions['Add standby capacity Office B'],
-    5: !!approvedAlertActions['Inspect CSAT Cluster']
+    5: !!approvedAlertActions['Inspect CSAT Cluster'],
   }
 
   const pendingCount = 3 - Object.values(approvedActions).filter(Boolean).length
@@ -124,7 +144,10 @@ export default function App() {
         incidents={incidents}
         onAckIncident={ackIncident}
       />
-      <DataQualityModal open={dataQualityOpen} onClose={() => setDataQualityOpen(false)} />
+      <DataQualityModal
+        open={dataQualityOpen}
+        onClose={() => setDataQualityOpen(false)}
+      />
 
       <Header />
 
@@ -134,27 +157,45 @@ export default function App() {
             {/* Pipeline nav */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-neutral-muted uppercase tracking-wider">Operational Pipeline</span>
-                <span className="material-symbols-outlined text-neutral-muted text-[14px]">chevron_right</span>
+                <span className="text-xs font-semibold text-neutral-muted uppercase tracking-wider">
+                  Operational Pipeline
+                </span>
+                <span className="material-symbols-outlined text-neutral-muted text-[14px]">
+                  chevron_right
+                </span>
                 <div className="flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-surface border border-border-light text-secondary font-semibold">SENSE</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-surface border border-border-light text-secondary font-semibold">
+                    SENSE
+                  </span>
                   <span className="text-neutral-muted text-xs">→</span>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-error-bg text-error font-semibold animate-pulse border border-error/20">ALERT</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-error-bg text-error font-semibold animate-pulse border border-error/20">
+                    ALERT
+                  </span>
                   <span className="text-neutral-muted text-xs">→</span>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-surface border border-border-light text-neutral-body font-medium">REASON</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-surface border border-border-light text-neutral-body font-medium">
+                    REASON
+                  </span>
                   <span className="text-neutral-muted text-xs">→</span>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-surface border border-border-light text-neutral-body font-medium">ASK</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-surface border border-border-light text-neutral-body font-medium">
+                    ASK
+                  </span>
                   <span className="text-neutral-muted text-xs">→</span>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-success-bg text-primary border border-primary/20 font-bold">ACT</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-success-bg text-primary border border-primary/20 font-bold">
+                    ACT
+                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-neutral-muted text-xs">
                 <div className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px] text-neutral-muted">tune</span>
+                  <span className="material-symbols-outlined text-[16px] text-neutral-muted">
+                    tune
+                  </span>
                   <span>Sensitivity: High (0.85σ)</span>
                 </div>
                 <span className="h-3 w-px bg-border-light"></span>
-                <span className="text-primary font-semibold flex items-center gap-1">● 100% telemetry live</span>
+                <span className="text-primary font-semibold flex items-center gap-1">
+                  ● 100% telemetry live
+                </span>
               </div>
             </div>
 
@@ -201,7 +242,11 @@ export default function App() {
                 />
               </div>
 
-              <ChatPanel unackCount={unackCount} onOpenSafety={openSafety} onCopyVendor={copyVendorMessage} />
+              <ChatPanel
+                unackCount={unackCount}
+                onOpenSafety={openSafety}
+                onCopyVendor={copyVendorMessage}
+              />
             </div>
 
             <DataQualityBar onOpen={() => setDataQualityOpen(true)} />

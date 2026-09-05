@@ -1,21 +1,21 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
-  --color-primary: #43B02A;
+  --color-primary: #43b02a;
   --color-primary-hover: #369121;
-  --color-secondary: #1E4A9B;
-  --color-surface: #FFFFFF;
-  --color-surface-panel: #F8FAFC;
+  --color-secondary: #1e4a9b;
+  --color-surface: #ffffff;
+  --color-surface-panel: #f8fafc;
   --color-neutral-title: #172033;
   --color-neutral-body: #475569;
-  --color-neutral-muted: #64748B;
-  --color-border-light: #E2E8F0;
-  --color-success-bg: #EAF7E6;
-  --color-error: #C62828;
-  --color-error-bg: #FDECEC;
-  --color-warning: #B7791F;
-  --color-warning-bg: #FFF7E6;
+  --color-neutral-muted: #64748b;
+  --color-border-light: #e2e8f0;
+  --color-success-bg: #eaf7e6;
+  --color-error: #c62828;
+  --color-error-bg: #fdecec;
+  --color-warning: #b7791f;
+  --color-warning-bg: #fff7e6;
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
 }
 
@@ -52,5 +52,9 @@ input {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'liga';
-  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 500,
+    'GRAD' 0,
+    'opsz' 24;
 }

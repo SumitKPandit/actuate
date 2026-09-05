@@ -39,6 +39,7 @@ uv-cache/
 
 # pytest / coverage
 .pytest_cache/
+.pytest-tmp/
 .coverage
 .coverage.*
 coverage.xml

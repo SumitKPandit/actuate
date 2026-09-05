@@ -6,25 +6,33 @@ export default function Header() {
       <div className="h-16 w-full px-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-lg text-secondary tracking-tight">ACTUATE</span>
+            <span className="font-bold text-lg text-secondary tracking-tight">
+              ACTUATE
+            </span>
           </div>
           <div className="h-4 w-px bg-border-light hidden md:block"></div>
           <div className="hidden sm:flex items-center gap-1.5 text-neutral-title font-semibold text-sm">
-            <span className="material-symbols-outlined text-secondary text-[18px]">space_dashboard</span>
+            <span className="material-symbols-outlined text-secondary text-[18px]">
+              space_dashboard
+            </span>
             <span>Operations Brief</span>
           </div>
         </div>
         <div className="flex items-center gap-3 overflow-x-auto justify-end width-[50px]">
           <div className="flex items-center gap-1.5">
             <div className="flex items-center bg-surface-panel border border-border-light px-2.5 py-1 rounded-full">
-              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">Cycle:</span>
+              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">
+                Cycle:
+              </span>
               <select className="bg-transparent text-xs font-semibold text-neutral-body outline-none cursor-pointer">
                 <option>2026-06-H1</option>
                 <option>2026-05-H2</option>
               </select>
             </div>
             <div className="flex items-center bg-surface-panel border border-border-light px-2.5 py-1 rounded-full">
-              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">Office:</span>
+              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">
+                Office:
+              </span>
               <select className="bg-transparent text-xs font-semibold text-neutral-body outline-none cursor-pointer">
                 <option>All Hubs</option>
                 <option>North Hub</option>
@@ -32,7 +40,9 @@ export default function Header() {
               </select>
             </div>
             <div className="flex items-center bg-surface-panel border border-border-light px-2.5 py-1 rounded-full">
-              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">Vendor:</span>
+              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">
+                Vendor:
+              </span>
               <select className="bg-transparent text-xs font-semibold text-neutral-body outline-none cursor-pointer">
                 <option>All</option>
                 <option>MoveInSync</option>
@@ -40,7 +50,9 @@ export default function Header() {
               </select>
             </div>
             <div className="hidden lg:flex items-center bg-surface-panel border border-border-light px-2.5 py-1 rounded-full">
-              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">BU:</span>
+              <span className="text-[11px] font-semibold text-neutral-muted mr-1.5 uppercase tracking-wider">
+                BU:
+              </span>
               <select className="bg-transparent text-xs font-semibold text-neutral-body outline-none cursor-pointer">
                 <option>All</option>
                 <option>Engineering</option>

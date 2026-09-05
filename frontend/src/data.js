@@ -11,7 +11,7 @@ export const kpis = [
     deltaNote: 'vs 95% SLA',
     footLabel: 'Owner',
     footValue: 'Vendor',
-    drilldown: true
+    drilldown: true,
   },
   {
     id: 'avg-delay',
@@ -24,7 +24,7 @@ export const kpis = [
     delta: '0.3 min',
     deltaNote: 'Prior cycle',
     footLabel: 'Primary',
-    footValue: 'Traffic'
+    footValue: 'Traffic',
   },
   {
     id: 'no-show',
@@ -36,7 +36,7 @@ export const kpis = [
     delta: '0.7pp',
     deltaNote: 'Peer 2.3%',
     footLabel: 'Owner',
-    footValue: 'Office'
+    footValue: 'Office',
   },
   {
     id: 'cost',
@@ -48,7 +48,7 @@ export const kpis = [
     delta: '8.2%',
     deltaNote: 'Peer \u20B91,236',
     footLabel: 'Owner',
-    footValue: 'Ops'
+    footValue: 'Ops',
   },
   {
     id: 'safety',
@@ -60,7 +60,7 @@ export const kpis = [
     footLabel: 'Owner',
     footValue: 'Ops Desk',
     footTone: 'error',
-    safety: true
+    safety: true,
   },
   {
     id: 'csat',
@@ -70,8 +70,8 @@ export const kpis = [
     valueUnit: '/5',
     deltaNote: 'Low: 7.4%',
     footLabel: 'Owner',
-    footValue: 'Vendor'
-  }
+    footValue: 'Vendor',
+  },
 ]
 
 export const alerts = [
@@ -82,14 +82,38 @@ export const alerts = [
     scopeLabel: 'Scope',
     scope: 'All vendors',
     metrics: [
-      { label: 'Current vs Baseline', big: '93.0%', bigTone: 'error', small: '/ 95.0% baseline', note: '\u0394 \u22122.0pp deficit', noteTone: 'error' },
-      { label: 'Operational Impact', big: '12,000', small: 'trips affected', note: '142 morning staging routes' },
-      { label: 'Primary Contribution', big: 'Vendor X', bigTone: 'error', note: '42% of delay gap', noteTone: 'title' },
-      { label: 'Trigger Benchmark', big: 'vs SLA & prior cycle', bigSmall: true, note: 'Breached at 06:12 IST' }
+      {
+        label: 'Current vs Baseline',
+        big: '93.0%',
+        bigTone: 'error',
+        small: '/ 95.0% baseline',
+        note: '\u0394 \u22122.0pp deficit',
+        noteTone: 'error',
+      },
+      {
+        label: 'Operational Impact',
+        big: '12,000',
+        small: 'trips affected',
+        note: '142 morning staging routes',
+      },
+      {
+        label: 'Primary Contribution',
+        big: 'Vendor X',
+        bigTone: 'error',
+        note: '42% of delay gap',
+        noteTone: 'title',
+      },
+      {
+        label: 'Trigger Benchmark',
+        big: 'vs SLA & prior cycle',
+        bigSmall: true,
+        note: 'Breached at 06:12 IST',
+      },
     ],
     reasoning:
       'OTA declined 2pp this cycle and is now below the 95% SLA. Vendor X contributes 42% of the gap, making it the highest-impact operational driver. Heavy bottlenecking observed on Outer Ring Road corridors between 07:30 and 08:45 IST.',
-    recommended: 'Re-route high-risk routes, add buffer, and review vendor penalty.',
+    recommended:
+      'Re-route high-risk routes, add buffer, and review vendor penalty.',
     owner: 'Vendor',
     hasCopyForVendor: true,
     vendorName: 'Vendor X',
@@ -105,10 +129,10 @@ export const alerts = [
         ['Peer Comparison:', '96.2%'],
         ['Affected Trips:', '12,000 trips'],
         ['Contribution Share:', 'Vendor X 42%'],
-        ['Owner / Execution:', 'Vendor Desk']
+        ['Owner / Execution:', 'Vendor Desk'],
       ],
-      note: 'Telemetry confirms 8 distinct bottleneck chokepoints along Outer Ring Road cloverleaf. Re-route 142 morning staging cabs with an extra 15-minute dispatch slotting buffer.'
-    }
+      note: 'Telemetry confirms 8 distinct bottleneck chokepoints along Outer Ring Road cloverleaf. Re-route 142 morning staging cabs with an extra 15-minute dispatch slotting buffer.',
+    },
   },
   {
     id: 2,
@@ -117,10 +141,33 @@ export const alerts = [
     scopeLabel: 'Scope',
     scope: 'Central Dispatch / Night Cabs',
     metrics: [
-      { label: 'Open / Unacknowledged', big: '18', bigTone: 'error', inlineNote: '(7 unacknowledged)', inlineNoteId: 'card2-unack-text', note: 'Oldest: 47 min awaiting dispatcher' },
-      { label: 'Benchmark Threshold', big: '30 min SLA', note: '17 min past breach limit', noteTone: 'error' },
-      { label: 'Incident Category', big: 'Unscheduled Stop & SOS Beacon', bigSmall: true, note: '3 Female solo late-shift cabs' },
-      { label: 'Escalation Status', big: 'Tier 2 Ops', bigTone: 'warning', note: 'On-call lead paged', id: 'alert2-status' }
+      {
+        label: 'Open / Unacknowledged',
+        big: '18',
+        bigTone: 'error',
+        inlineNote: '(7 unacknowledged)',
+        inlineNoteId: 'card2-unack-text',
+        note: 'Oldest: 47 min awaiting dispatcher',
+      },
+      {
+        label: 'Benchmark Threshold',
+        big: '30 min SLA',
+        note: '17 min past breach limit',
+        noteTone: 'error',
+      },
+      {
+        label: 'Incident Category',
+        big: 'Unscheduled Stop & SOS Beacon',
+        bigSmall: true,
+        note: '3 Female solo late-shift cabs',
+      },
+      {
+        label: 'Escalation Status',
+        big: 'Tier 2 Ops',
+        bigTone: 'warning',
+        note: 'On-call lead paged',
+        id: 'alert2-status',
+      },
     ],
     reasoning:
       'Seven Sev-1 incidents remain unacknowledged beyond the operational SLA of 30 minutes. Telemetry indicates cabs stopped in non-geofenced areas with panic button telematics triggered in 2 vehicles. Requires immediate manual verification.',
@@ -133,8 +180,8 @@ export const alerts = [
       ['Ack SLA:', '30 min max'],
       ['Mean Ack Time:', '12.4 min'],
       ['Queue Delay:', '+34.6 min'],
-      ['Escort Status:', '4 unverified']
-    ]
+      ['Escort Status:', '4 unverified'],
+    ],
   },
   {
     id: 3,
@@ -143,10 +190,31 @@ export const alerts = [
     scopeLabel: 'Vendor',
     scope: 'Vendor Y',
     metrics: [
-      { label: 'Cost / Trip', big: '\u20B91,982', small: '/ trip', note: 'Peer baseline \u20B91,236', noteTone: 'warning' },
-      { label: 'Statistical Variance', big: '+3.2\u03C3 Outlier', bigTone: 'error', note: 'High standard deviation' },
-      { label: 'Sanity Threshold', big: '>\u20B916k Sanity Flag', bigTone: 'error', bigSmall: true, note: '14 extreme billing lines' },
-      { label: 'Financial Risk', big: '\u20B93,42,000', note: 'Unapproved billing delta' }
+      {
+        label: 'Cost / Trip',
+        big: '\u20B91,982',
+        small: '/ trip',
+        note: 'Peer baseline \u20B91,236',
+        noteTone: 'warning',
+      },
+      {
+        label: 'Statistical Variance',
+        big: '+3.2\u03C3 Outlier',
+        bigTone: 'error',
+        note: 'High standard deviation',
+      },
+      {
+        label: 'Sanity Threshold',
+        big: '>\u20B916k Sanity Flag',
+        bigTone: 'error',
+        bigSmall: true,
+        note: '14 extreme billing lines',
+      },
+      {
+        label: 'Financial Risk',
+        big: '\u20B93,42,000',
+        note: 'Unapproved billing delta',
+      },
     ],
     reasoning:
       "Cost is materially above the peer benchmark and exceeds the expected distribution. Billing logs contain multiple trips billed under 'Special Event' tariff without authorization codes.",
@@ -158,8 +226,8 @@ export const alerts = [
       ['Median Cost / Trip:', '\u20B91,210'],
       ['Standard Dev:', '\u20B9233'],
       ['Vendor Y Avg:', '\u20B91,982'],
-      ['Unslabbed Bills:', '28 records']
-    ]
+      ['Unslabbed Bills:', '28 records'],
+    ],
   },
   {
     id: 4,
@@ -168,9 +236,25 @@ export const alerts = [
     scopeLabel: 'Office',
     scope: 'Office B (Tech Hub)',
     metrics: [
-      { label: 'Current No-Show', big: '4.1%', bigTone: 'warning', small: 'of roster', note: '\u0394 +1.8pp vs Peer (2.3%)', noteTone: 'warning' },
-      { label: 'Concentration', big: 'Evening Shift (21:00)', bigSmall: true, note: 'Product Eng & QA units' },
-      { label: 'Dead Mileage Incurred', big: '648 km', note: 'Driver idle wait time: 14.2 min avg' }
+      {
+        label: 'Current No-Show',
+        big: '4.1%',
+        bigTone: 'warning',
+        small: 'of roster',
+        note: '\u0394 +1.8pp vs Peer (2.3%)',
+        noteTone: 'warning',
+      },
+      {
+        label: 'Concentration',
+        big: 'Evening Shift (21:00)',
+        bigSmall: true,
+        note: 'Product Eng & QA units',
+      },
+      {
+        label: 'Dead Mileage Incurred',
+        big: '648 km',
+        note: 'Driver idle wait time: 14.2 min avg',
+      },
     ],
     reasoning:
       'No-shows surged at Office B specifically on evening departures following work-from-home policy transition. Standby cabs were held on meter awaiting passengers who opted out without app cancellation.',
@@ -183,8 +267,8 @@ export const alerts = [
       ['Corporate Baseline:', '2.3%'],
       ['Office A:', '2.1%'],
       ['Office B:', '4.1%'],
-      ['Unclaimed Seats:', '84 seats']
-    ]
+      ['Unclaimed Seats:', '84 seats'],
+    ],
   },
   {
     id: 5,
@@ -193,9 +277,25 @@ export const alerts = [
     scopeLabel: 'Cluster',
     scope: 'Route 42 / Driver group Delta',
     metrics: [
-      { label: 'Cluster CSAT', big: '2.8', small: '/ 5.0 (Global 4.82)', note: '11 low ratings in 48h', noteTone: 'error' },
-      { label: 'Cluster Density', big: '11 ratings <3\u2605', bigSmall: true, note: 'Threshold limit: <3' },
-      { label: 'Dominant Feedback Tag', big: 'AC Non-functional / Rude', bigSmall: true, note: '4 designated hatchbacks' }
+      {
+        label: 'Cluster CSAT',
+        big: '2.8',
+        small: '/ 5.0 (Global 4.82)',
+        note: '11 low ratings in 48h',
+        noteTone: 'error',
+      },
+      {
+        label: 'Cluster Density',
+        big: '11 ratings <3\u2605',
+        bigSmall: true,
+        note: 'Threshold limit: <3',
+      },
+      {
+        label: 'Dominant Feedback Tag',
+        big: 'AC Non-functional / Rude',
+        bigSmall: true,
+        note: '4 designated hatchbacks',
+      },
     ],
     reasoning:
       'Route 42 has collected 11 negative ratings this week. All feedback originates from 4 shared cabs assigned to sub-vendor FleetOps. General rider CSAT remains healthy at 4.82 across other corridors.',
@@ -207,9 +307,9 @@ export const alerts = [
       ['Global Excl 0\u2605:', '4.82'],
       ['Route 42 Vol:', '132 trips'],
       ['Specific Drivers:', '4 identified'],
-      ['0-star Excluded:', 'Yes']
-    ]
-  }
+      ['0-star Excluded:', 'Yes'],
+    ],
+  },
 ]
 
 export const recommendedActions = [
@@ -221,7 +321,7 @@ export const recommendedActions = [
     reason: 'Reason: OTA breach (93.0% vs 95.0% SLA). 42% gap accountability.',
     hasCopy: true,
     vendorName: 'Vendor X',
-    vendorOta: '91.2%'
+    vendorOta: '91.2%',
   },
   {
     id: 'act-2',
@@ -230,15 +330,15 @@ export const recommendedActions = [
     title: 'Acknowledge open Sev-1 alerts',
     reason: 'Reason: 7 critical incidents beyond 30 min ack SLA.',
     hasReview: true,
-    isSev1: true
+    isSev1: true,
   },
   {
     id: 'act-3',
     owner: 'Office B',
     ownerTone: 'secondary',
     title: 'Add standby capacity for Office B',
-    reason: 'Reason: No-show spike (4.1%) & driver un-allocation.'
-  }
+    reason: 'Reason: No-show spike (4.1%) & driver un-allocation.',
+  },
 ]
 
 export const initialIncidents = [
@@ -247,22 +347,22 @@ export const initialIncidents = [
     code: 'INC-8821',
     waiting: '47 min waiting',
     desc: 'Unscheduled Stop & SOS beacon \u2022 Female solo late-shift cab (Outer Ring Rd)',
-    acked: false
+    acked: false,
   },
   {
     id: 'inc-8817',
     code: 'INC-8817',
     waiting: '36 min waiting',
     desc: 'Panic Beacon Triggered \u2022 Geofence departure with female rider',
-    acked: false
+    acked: false,
   },
   {
     id: 'inc-8804',
     code: 'INC-8804',
     waiting: '28 min elapsed',
     desc: 'Route Deviation >4km \u2022 Security verified phone contact with driver',
-    acked: true
-  }
+    acked: true,
+  },
 ]
 
 export const suggestionPills = [
@@ -271,5 +371,5 @@ export const suggestionPills = [
   'Show open Sev-1 alerts',
   'Which vendors have cost outliers?',
   'Which office has highest no-shows?',
-  "Tell me tomorrow's weather"
+  "Tell me tomorrow's weather",
 ]

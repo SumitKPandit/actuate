@@ -16,22 +16,23 @@ This frontend is the **Sense→Reason→Act surface**: it never computes KPIs �
 
 Base: `VITE_API_URL` (see `.env.example`, default `http://127.0.0.1:8000`). All reads are mart-backed (`daily_kpi`, `vendor_kpi`, `office_kpi`, `insight_cache`); no raw-table scans, no CSV/DB access from frontend. Filters: `cycle` (e.g. `2026-06-H1`), `office`, `vendor`, `business_unit`. `%` rounded to 1 decimal, cost to 2.
 
-| Method + path | Used by | Returns (frozen shapes, see `stories/04-ops-api/SPEC.md`) |
-|---|---|---|
-| `GET /overview?cycle=&office=&vendor=` | Dashboard cards | `{ trips, ota_pct, avg_delay_min, delay_reason_mix (late-only shares), no_show_rate, cost_per_trip, cost_per_km, zero_km_share, alert_rate_per_1k, sev1_count, ack_sla_met_share, csat_avg, low_rating_share }` + `benchmarks: { ota_sla: 95, ack_sla_min: 30 }` |
-| `GET /insights?cycle=` | Brief exception feed | Ranked insights `[{ id, kpi, scope{vendor,office,cycle}, current, baseline, delta_pp, severity(high/med/low), reach_trips, contribution_share, reason(vs_sla/vs_prior/vs_peer/anomaly), recommended_action, owner }]` (severity×reach rank; max age 6h) |
+| Method + path                                            | Used by                                 | Returns (frozen shapes, see `stories/04-ops-api/SPEC.md`)                                                                                                                                                                                                                                                           |
+| -------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /overview?cycle=&office=&vendor=`                   | Dashboard cards                         | `{ trips, ota_pct, avg_delay_min, delay_reason_mix (late-only shares), no_show_rate, cost_per_trip, cost_per_km, zero_km_share, alert_rate_per_1k, sev1_count, ack_sla_met_share, csat_avg, low_rating_share }` + `benchmarks: { ota_sla: 95, ack_sla_min: 30 }`                                                    |
+| `GET /insights?cycle=`                                   | Brief exception feed                    | Ranked insights `[{ id, kpi, scope{vendor,office,cycle}, current, baseline, delta_pp, severity(high/med/low), reach_trips, contribution_share, reason(vs_sla/vs_prior/vs_peer/anomaly), recommended_action, owner }]` (severity×reach rank; max age 6h)                                                             |
 | `GET /briefing?cycle=` (`?narrate=true` later, Story 07) | Brief page (≤2 fetches with `/actions`) | `{ generated_at, headline_facts[3-5 template strings], insights_top5, safety_open_sev1, actions_top3, triggers[] }`. `triggers[]` = `{ trigger, fired, scope, current, baseline, insight_id }` (Sev-1 spike / OTA drop / cost outlier); empty array = no-fire, key may be missing pre-Story-08 — render defensively |
-| `GET /vendors?cycle=&sort=ota\|cost\|alerts\|csat` | Dashboard table | Rows `{ vendor, trips, ota, cost_per_trip, cost_per_km, alert_per_1k, csat, contribution_share, peer_rank }` + explicit `zero_km` / `UNSLABBED` counts as sub-text |
-| `GET /actions?cycle=` | Brief actions | `[{ id, action, owner, due_hint, copy_for_vendor (≤500 chars, vendor+KPI+cycle), status: proposed }]` |
-| `POST /actions/{id}/ack {actor}` | Brief Ack button | `{ id, status: "acked", actor, acked_at }`; unknown id → 404; idempotent |
-| `POST /ask {question, cycle?, scope?}` | Chat drawer | `{ sql (executed allowlisted SELECT, LIMIT ≤50), rows, narrative, grounded_from }`; off-intent/injection → **422 + `supported_intents`** (intents: OTA by vendor/office, cost outlier, Sev-1/open alerts, CSAT low cluster, no-show by shift/office) |
-| Errors (all endpoints) | Every view | Unknown cycle → 404 + valid cycle list; empty marts → 200 `{ data: null, warning: "marts empty — run ingest" }` — surface `warning` verbatim as banner, never blank page |
+| `GET /vendors?cycle=&sort=ota\|cost\|alerts\|csat`       | Dashboard table                         | Rows `{ vendor, trips, ota, cost_per_trip, cost_per_km, alert_per_1k, csat, contribution_share, peer_rank }` + explicit `zero_km` / `UNSLABBED` counts as sub-text                                                                                                                                                  |
+| `GET /actions?cycle=`                                    | Brief actions                           | `[{ id, action, owner, due_hint, copy_for_vendor (≤500 chars, vendor+KPI+cycle), status: proposed }]`                                                                                                                                                                                                               |
+| `POST /actions/{id}/ack {actor}`                         | Brief Ack button                        | `{ id, status: "acked", actor, acked_at }`; unknown id → 404; idempotent                                                                                                                                                                                                                                            |
+| `POST /ask {question, cycle?, scope?}`                   | Chat drawer                             | `{ sql (executed allowlisted SELECT, LIMIT ≤50), rows, narrative, grounded_from }`; off-intent/injection → **422 + `supported_intents`** (intents: OTA by vendor/office, cost outlier, Sev-1/open alerts, CSAT low cluster, no-show by shift/office)                                                                |
+| Errors (all endpoints)                                   | Every view                              | Unknown cycle → 404 + valid cycle list; empty marts → 200 `{ data: null, warning: "marts empty — run ingest" }` — surface `warning` verbatim as banner, never blank page                                                                                                                                            |
 
 KPI/benchmark/owner table (frozen, `PLAN.md §4`): OTA>15min late / SLA 95% → vendor; delay mix → vendor; no-show → office; cost/trip·cost/km·outliers (+`>₹16k` sanity flag) → ops; alert/1k·Sev-1·ack<30min → ops; CSAT excl. 0s, `<3`=low → vendor. Out of MVP: sustainability, GPS-trace replay.
 
 ## 3. Scope
 
 **In:** two routes + one drawer + typed client, wired to the table above:
+
 - `/` brief feed (Story 05), `/dashboard` KPI + vendor drill-down (Story 06), floating **Ask Actuate** drawer on both (Story 07), `src/lib/ops.ts` typed fetch client reused by both routes.
 - Cycle selector defaulting to latest (options from 404 payload or `/overview` cycles); `generated_at` stamp; benchmark chips (OTA SLA 95% · Ack 30 min).
 
@@ -40,6 +41,7 @@ KPI/benchmark/owner table (frozen, `PLAN.md §4`): OTA>15min late / SLA 95% → 
 ## 4. Information architecture (top→bottom)
 
 **`/` Brief — "<30s: what slipped, who drives it, safety, next action":**
+
 1. Cycle selector + `generated_at` + benchmark chips.
 2. Trigger banner — red `demo-alert-danger` iff any `triggers[]` has `fired=true` (name + scope); hidden on `[]`/missing key; never crash.
 3. Headline facts — 3–5 template strings verbatim (`?narrate=true` text is a drop-in swap later).

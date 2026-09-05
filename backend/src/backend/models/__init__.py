@@ -4,6 +4,7 @@ from backend.core.database import Base
 from backend.models.example import Example
 from backend.models.marts import DailyKpi, InsightCache, OfficeKpi, VendorKpi
 from backend.models.ops import Alert, Bill, Feedback, Leg, Trip
+from backend.models.vector import KnowledgeChunk
 
 __all__ = [
     "Alert",
@@ -13,6 +14,7 @@ __all__ = [
     "Example",
     "Feedback",
     "InsightCache",
+    "KnowledgeChunk",
     "Leg",
     "OfficeKpi",
     "Trip",
