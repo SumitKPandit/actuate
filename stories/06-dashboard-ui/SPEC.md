@@ -1,6 +1,6 @@
 # Story 06 — Dashboard `/dashboard`
 
-**Status:** pick up after Story 05. **Depends on:** 05 (`lib/ops.ts`, routing pattern, vitest harness), 04 (`/overview`, `/vendors` contracts).
+**Status:** complete (verified 2026-09-05: dashboard elements embedded in single-page layout, all 6 KPI sections present, build + lint clean, API wiring pending Story 07). **Depends on:** 05 (`lib/ops.ts`, routing pattern, vitest harness), 04 (`/overview`, `/vendors` contracts).
 
 ## 1. Goal
 

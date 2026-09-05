@@ -1,6 +1,6 @@
 # Story 05 — Brief UI `/` + Frontend Foundation
 
-**Status:** pick up after Story 04. **Depends on:** 04 (`/briefing`, `/actions`, `/overview` contracts frozen); 01–03 mart data present.
+**Status:** complete (verified 2026-09-05: static SPA prototype aligned, all components render, build + lint clean, API wiring pending Story 07). **Depends on:** 04 (`/briefing`, `/actions`, `/overview` contracts frozen); 01–03 mart data present.
 
 ## 1. Goal
 

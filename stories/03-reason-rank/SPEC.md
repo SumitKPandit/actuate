@@ -1,6 +1,6 @@
 # Story 03 — Reasoning + Ranking `core/reason.py` (deterministic-first agent brain)
 
-**Status:** pick up after Story 02. **Depends on:** 02 (KPI outputs as input facts).
+**Status:** complete (verified 2026-09-05: 13 reason tests + 41 full suite green, deterministic ranking, no LLM). **Depends on:** 02 (KPI outputs as input facts).
 
 ## 1. Goal
 

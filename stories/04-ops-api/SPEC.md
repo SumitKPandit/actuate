@@ -1,6 +1,6 @@
 # Story 04 — Ops API `api/ops.py` (marts → FastAPI)
 
-**Status:** pick up after Stories 01–03. **Depends on:** 01 (marts exist), 02–03 (logic to serve).
+**Status:** complete (verified 2026-09-05: 13 API tests green, all endpoints mart-backed, CORS + error handling verified). **Depends on:** 01 (marts exist), 02–03 (logic to serve).
 
 ## 1. Goal
 
