@@ -1,0 +1,1 @@
+{"data":{"trips":202112,"ota_pct":96.9,"avg_delay_min":1.7,"delay_reason_mix":{},"no_show_rate":6.9,"cost_per_trip":1339.18,"cost_per_km":8031.12,"zero_km_share":41.3,"alert_rate_per_1k":73.8,"sev1_count":252,"ack_sla_met_share":73.3,"csat_avg":4.8,"low_rating_share":1.7,"benchmarks":{"ota_sla":95.0,"ack_sla_min":30.0}},"warning":null}
