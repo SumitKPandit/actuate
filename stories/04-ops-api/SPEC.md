@@ -52,5 +52,5 @@ Base: all endpoints read marts (`daily_kpi`, `vendor_kpi`, `office_kpi`, `insigh
 
 ## 7. Notes
 
-- Route prefix: `/` (i.e. `/overview`, not `/api/overview`) to match PLAN §5 paths. CORS already covers `localhost:3000` via `core/config.py`.
+- Route prefix: `/` (i.e. `/overview`, not `/api/overview`) to match PLAN §5 paths. CORS already covers the Vite dev server on `localhost:5173` via `core/config.py`.
 - Keep response models as Pydantic schemas in `api/ops.py` (or `models/schemas.py` if it grows) — frontend Stories 05–06 codegen against these shapes.

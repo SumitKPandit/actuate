@@ -1,6 +1,6 @@
 # Story 05 — Mart Population (raw tables → marts)
 
-**Status:** ready for implementation. **Depends on:** 01 (raw tables + mart schemas), 02 (analytics functions), 04 (ops API reads marts).
+**Status:** complete (verified 2026-09-05: mart rebuild, KPI aggregation, idempotency, and non-empty ops API path are covered by passing tests). **Depends on:** 01 (raw tables + mart schemas), 02 (analytics functions), 04 (ops API reads marts).
 
 ## 1. Goal
 

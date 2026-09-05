@@ -4,22 +4,22 @@ Agentic Intelligence & Reporting Layer for Enterprise Mobility
 > Scope (frozen in `PLAN.md`): persona = transport manager; surface = brief + dashboard + Q&A.
 > Loop: Sense (batch ingest → marts) → Reason (deterministic SLA/prior/peer + rank) → Act
 > (pull-proactive `triggers[]` + recommend + human-ack). LLM narrates precomputed facts only.
-> Status: Stories 01–07 (ingest, marts, API, dashboard, Q&A, and narration) complete; Story 08 supplies triggers/docs.
-> Full endpoint/KPI/diagram/samples land in Story 08 — see `PLAN.md` + `stories/README.md` meanwhile.
+> Status: Stories 01–07 and 09–10 are complete in code; Story 08 (triggers, docs, and samples) is not started.
+> See `PLAN.md` + `stories/README.md` for the implementation order and the remaining Story 08 scope.
 
 ## Full-stack quickstart
 
 ```bash
 # All services (db + api + web):
 docker compose up --build
-# Web http://127.0.0.1:3000 · API http://127.0.0.1:8000/docs · DB readiness /ready
+# Web http://127.0.0.1:5173 · API http://127.0.0.1:8000/docs · DB readiness /ready
 ```
 
 Local dev (two terminals):
 
 ```bash
 cd backend && uv sync --group dev && uv run uvicorn backend.app:app --reload --port 8000
-cd frontend && npm install && npm run dev   # http://localhost:3000
+cd frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
 The home page proves browser → API → DB (`/health`, `/ready`,

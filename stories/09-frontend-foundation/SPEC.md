@@ -1,6 +1,6 @@
 # Story 09 — Frontend↔API Foundation: Typed Client + Test Harness
 
-**Status:** ready — pick up after Stories 04–06 (may run before 07/08). **Depends on:** 04 (ops API contracts frozen in `backend/src/backend/api/ops.py`), 01–03 (mart data present). Delivers the deferred Story 05 §3.4 foundation: today `frontend/src/lib/` is empty, there is no test harness, and no fixtures exist.
+**Status:** complete (verified 2026-09-05: typed client, hooks, fixtures, Vitest/MSW harness, typecheck, lint, and build are green). **Depends on:** 04 (ops API contracts frozen in `backend/src/backend/api/ops.py`), 01–03 (mart data present). Delivers the deferred Story 05 §3.4 foundation.
 
 ## 1. Goal
 

@@ -1,6 +1,6 @@
 # Frontend SPEC — Actuate Ops Brief (simple build)
 
-**Location:** `frontend/` (this file). **Persona:** transport manager only; briefing is forwardable to transport & facilities head without rework. **Surface:** brief + dashboard + Q&A. **Status:** spec for implementation per `PLAN.md` + `stories/05-brief-ui`, `06-dashboard-ui`, `07-ask-narrate` contracts.
+**Location:** `frontend/` (this file). **Persona:** transport manager only; briefing is forwardable to transport & facilities head without rework. **Surface:** brief + dashboard + Q&A. **Status:** implementation delivered across Stories 05b–07 and 09–10; Story 08 trigger/docs work remains.
 
 Visual reference only: `src/routes/mockup.tsx` (static data, no API calls — do not ship). Design tokens: `moveinsync.com-design.md` + `src/styles.css` (`island-shell`, `demo-button`, `demo-pill`, `demo-table`, `demo-alert-*`). No new design system.
 
@@ -57,7 +57,7 @@ KPI/benchmark/owner table (frozen, `PLAN.md §4`): OTA>15min late / SLA 95% → 
 
 ## 6. Technical notes
 
-- Stack as-is: TanStack Start (file routes; never hand-edit `routeTree.gen.ts`), TanStack Query or route `loader`, Tailwind + existing `demo-*`/`island-*` classes, Inter, flat cards (`8px`), pill CTAs (`30px`, green `#43B02A`, hover blue `#1E4A9B`), single-column mobile.
+- Stack as-is: Vite + React SPA, typed fetch client and hooks, Tailwind + existing `demo-*`/`island-*` classes, Inter, flat cards (`8px`), pill CTAs (`30px`, green `#43B02A`, hover blue `#1E4A9B`), single-column mobile.
 - `src/lib/ops.ts`: extend existing `getApiBaseUrl()` + typed fns per §2 row; throw on non-OK except map 404-cycle → fallback-to-latest and 422-ask → intents UI; missing `VITE_API_URL` → inline error naming the var. Brief needs ≤2 fetches; aggregate cards only, no per-row rendering.
 - Keep header nav `/` ↔ `/dashboard` (retire `mockup`/`demo` links when removing starter cruft in Story 08).
 
@@ -66,5 +66,5 @@ KPI/benchmark/owner table (frozen, `PLAN.md §4`): OTA>15min late / SLA 95% → 
 - [ ] Stubbed fixtures (match Story 04 schemas) render every §4 section with correct badges/numbers; `triggers:[{fired:true}]` → red banner, `[]`/missing → nothing; copy button copies exact string; ack flips via POST; `warning` → banner; loading skeletons present.
 - [ ] Dashboard: 6 cards with deltas/badges, all 4 sorts reorder, URL filters round-trip on reload, missing → `—` + banner.
 - [ ] Drawer: open/ask/render/SQL-sources/422 states against mocked fetch.
-- [ ] `npm run build` + `eslint` clean; `/about` unaffected; no backend changes (mock at fetch boundary); live check `docker compose up --build` → `:3000` vs `:8000/docs` noted.
+- [ ] `npm run build` + `eslint` clean; `/about` unaffected; no backend changes (mock at fetch boundary); live check `docker compose up --build` → `:5173` vs `:8000/docs` noted.
 - Tests: Vitest + Testing Library (add minimal if missing): brief feed, trigger fire/no-fire + missing-key, copy, ack POST, empty warning, loading; dashboard cards/sort/filter-round-trip/empty. Manual live note per story folder.

@@ -1,6 +1,6 @@
 # Story 10 — API Integration: Live Data in Brief + Dashboard, Ack Write-Path
 
-**Status:** implemented (verified 2026-09-05: live brief/dashboard wiring, ack write-path, URL state, adapter/integration tests, frontend gates, and backend regression checks; compose smoke pending a running Docker daemon). **Depends on:** 09 (`lib/ops.ts`, hooks, harness, fixtures), 04 (ops API), 01–03 (mart data). Delivers the deferred Story 05 §3.1/§3.3 data wiring and Story 06 §3.3–§3.5 dashboard wiring; Story 05/06 status lines said "wiring pending Story 07" — corrected: this story owns it.
+**Status:** complete (verified 2026-09-05: live brief/dashboard wiring, ack write-path, URL state, adapter/integration tests, frontend gates, backend regression checks, and Compose live-data smoke). **Depends on:** 09 (`lib/ops.ts`, hooks, harness, fixtures), 04 (ops API), 01–03 (mart data). Delivers the deferred Story 05 §3.1/§3.3 data wiring and Story 06 §3.3–§3.5 dashboard wiring; Story 05/06 status lines said "wiring pending Story 07" — corrected: this story owns it.
 
 ## 1. Goal
 
@@ -48,7 +48,7 @@ Replace every `data.js` mock with live API data so the transport manager sees th
 - [ ] Vendor table: all 4 sorts reorder rows; zero-km/unslabbed counts visible as sub-text; URL round-trip `?cycle=&vendor=` restores state.
 - [ ] `frontend/src/data.js` deleted.
 - [ ] `npx vitest run` green; `npm run lint` + `npm run build` clean; backend `uv run pytest` + `ruff` untouched green.
-- [ ] E2E smoke: `docker compose up --build` → brief + dashboard render live data at `127.0.0.1:3000`.
+- [ ] E2E smoke: `docker compose up --build` → brief + dashboard render live data at `127.0.0.1:5173`.
 
 ## 5. Test plan (test-first)
 

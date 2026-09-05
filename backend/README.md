@@ -41,7 +41,7 @@ tests/
 ## Config
 
 Copy `.env.example` to `.env` to override `APP_NAME`, `DATABASE_URL`,
-`CORS_ORIGINS` (JSON array, defaults cover `localhost:3000`), or the optional
+`CORS_ORIGINS` (JSON array, defaults cover `localhost:5173`), or the optional
 Sarvam narration settings. `SARVAM_API_KEY` is backend-only; the API falls
 back to deterministic templates when it is absent or unavailable.
 
@@ -116,14 +116,14 @@ Other rules: `trip_id`/`stwid` strip commas → `BIGINT`;
 `dq_flag='negative_km'`; `bills.total_trip_km = 0` kept with
 `is_zero_km=true`; feedback ratings stored raw incl. `0`.
 
-## Roadmap (Story 08)
+## Remaining Roadmap (Story 08)
 
-- Story 07 `core/ask.py` + `core/narrate.py` + `POST /ask`: deterministic
+- Story 07 is implemented: `core/ask.py` + `core/narrate.py` + `POST /ask`: deterministic
   marts-only allowlisted `SELECT` (`LIMIT 50`), nine frozen intent IDs, 422 +
   `supported_intents` otherwise; `GET /briefing?narrate=true` leadership
   paragraph with template fallback and optional Sarvam-105B narration. The
   request accepts `question`, optional `cycle`, and optional exact `scope`.
-- Story 08 `core/triggers.py`: Sev-1 spike / OTA drop / cost outlier → `triggers[]` in `/briefing` + log (no push infra; `{fired,scope,insight_id}` push-ready).
+- Story 08 `core/triggers.py`: Sev-1 spike / OTA drop / cost outlier → `triggers[]` in `/briefing` + log (no push infra; `{fired,scope,insight_id}` push-ready). This is the remaining unimplemented story.
 
 ## Ops API (Story 04)
 
@@ -148,8 +148,8 @@ Local dev: after pulling, recreate mart tables in `actuate.db` (new nullable col
 
 ## Frontend wiring
 
-CORS allows the Vite dev server (`http://localhost:3000`,
-`http://127.0.0.1:3000`) by default. The frontend reads the API base
+CORS allows the Vite dev server (`http://localhost:5173`,
+`http://127.0.0.1:5173`) by default. The frontend reads the API base
 from `frontend/.env` (`VITE_API_URL`, see `frontend/.env.example`) and
 the home page shows `/health`, `/ready`, and `/examples` status plus a
 small write form — proving browser → API → DB end to end.
@@ -164,7 +164,7 @@ docker compose up --build
 
 Open:
 
-- Web: http://127.0.0.1:3000
+- Web: http://127.0.0.1:5173
 - Swagger UI: http://127.0.0.1:8000/docs
 - Health: http://127.0.0.1:8000/health
 - Readiness: http://127.0.0.1:8000/ready

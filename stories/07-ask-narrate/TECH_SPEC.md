@@ -1,6 +1,6 @@
 # Story 07 - Technical Specification
 
-**Status:** implementation-ready. This document freezes the contracts needed
+**Status:** complete (implementation delivered; PostgreSQL migrations and Compose live-data paths are verified; the expanded acceptance matrix remains pending). This document freezes the contracts needed
 by the backend, database, provider adapter, and frontend. `SPEC.md` describes
 the product requirements; this document is the implementation contract.
 

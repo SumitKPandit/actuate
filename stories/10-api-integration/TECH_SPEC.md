@@ -552,7 +552,7 @@ The Story 09 client, hook, fixture, and harness tests must remain green. Backend
 | `data.js` deleted | Filesystem check and `npm run build`. |
 | Frontend test/lint/build gates | `npx vitest run`, `npm run lint`, `npm run build`, and `npm run typecheck`. |
 | Backend remains green and untouched | `uv run pytest` and `ruff`; `git diff -- backend` must be empty. |
-| Compose smoke renders live surfaces | `docker compose up --build`, then browser check at `127.0.0.1:3000`. |
+| Compose smoke renders live surfaces | `docker compose up --build`, then browser check at `127.0.0.1:5173`. |
 
 ## 7. Files to Touch
 
@@ -612,7 +612,7 @@ The two hooks and table are additional files because the story explicitly adds i
 9. Remove all `data.js` imports, move static modal fixture state into `Modals.jsx`, and delete `data.js`.
 10. Apply documentation updates only after the implementation and tests reflect the final behavior.
 11. Run the complete frontend and backend verification commands.
-12. Run the compose smoke check against `127.0.0.1:3000`.
+12. Run the compose smoke check against `127.0.0.1:5173`.
 
 Required commands from `frontend/`:
 

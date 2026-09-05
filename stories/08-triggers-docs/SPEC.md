@@ -1,6 +1,6 @@
 # Story 08 — Proactive Triggers + Docs + Samples (ship-ready)
 
-**Status:** last. **Depends on:** 01–07 (needs real insights, API, UI, narration to document).
+**Status:** not started. **Depends on:** 01–07 (needs real insights, API, UI, narration to document).
 
 ## 1. Goal
 
@@ -19,7 +19,7 @@ System nudges before the manager asks, and a new reader can run, trust, and demo
    - Cost outlier: vendor `cost_per_trip` > mean + 3σ within cycle, or any trip `> ₹16k` sanity flag (PLAN max observed).
    Output: `{ trigger, fired: bool, scope, current, baseline, insight_id }` surfaced as `triggers[]` in `/briefing` (extend, don't break Story 04 shape) + server log line. Unfired → empty array (never null). `insight_id` links to the ranked insight; action ack (Story 04) is the approval half — triggers are the firing half.
 2. **README (root + backend + frontend touch-up):** quickstart via `docker compose up --build` (ports 3000/8000, `/docs`, `/health`, `/ready`); local dev (`uv sync`, `npm install`); ingest command; env table (`DATABASE_URL`, `VITE_API_URL`, `SARVAM_API_KEY`); endpoint table with example curl (incl. `POST /actions/{id}/ack` + `POST /ask` 422 case); KPI/benchmark/decision-owner table (PLAN §4); messy-data handling summary (PLAN §6); agentic loop (Sense→Reason→Act) in 5 lines: batch-sense, deterministic-reason, pull-proactive + ack-act, LLM-narrates-facts-only.
-3. **Architecture diagram:** one file `docs/architecture.(mmd|png)` (mermaid source committed): CSVs → ingest → Postgres (5 raw + 4 marts) → FastAPI (`/overview /insights /briefing[+triggers[]] /vendors /actions[+ack] /ask`) → TanStack Start → Sarvam edge; annotate "LLM narrates precomputed facts only" + "marts-only reads, no raw scans at request time" + "push out, `{fired,scope,insight_id}` push-ready".
+3. **Architecture diagram:** one file `docs/architecture.(mmd|png)` (mermaid source committed): CSVs → ingest → Postgres (5 raw + 4 marts) → FastAPI (`/overview /insights /briefing[+triggers[]] /vendors /actions[+ack] /ask`) → Vite React SPA → Sarvam edge; annotate "LLM narrates precomputed facts only" + "marts-only reads, no raw scans at request time" + "push out, `{fired,scope,insight_id}` push-ready".
 4. **Sample inputs/outputs:** `stories/08-triggers-docs/samples/` (or `docs/samples/` with pointer): mini CSV input (20 rows quirks-covered) + `overview.json` + `insights.json` + `briefing.json` (incl. `triggers[]` fire + no-fire variants + `?narrate=true` leadership paragraph) + `ask.json` (one Q&A + one 422 case) + `actions-ack.json` (POST ack request/response) captured from test DB — must match live schemas.
 5. **Cleanup:** remove/replace starter placeholders (`StackStatus` demo decision, About page pointer); `.gitignore` covers `.env`, `*.db`, `pgdata`, `node_modules`, `.venv`; no secrets committed (`git status` check in PR).
 

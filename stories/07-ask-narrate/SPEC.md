@@ -1,6 +1,6 @@
 # Story 07 - PostgreSQL Q&A + Sarvam-105B Narration
 
-**Status:** implementation-ready. **Depends on:** 02 (KPIs), 03
+**Status:** complete (implementation delivered, local unit gates are green, PostgreSQL migrations and Compose live-data paths are verified; the expanded acceptance matrix remains pending). **Depends on:** 02 (KPIs), 03
 (insights), 04 (mart-backed API and reserved `/ask`), 05 (mart population),
 and 09 (typed frontend API client). Story 10 supplies the live frontend
 surface that this story completes.

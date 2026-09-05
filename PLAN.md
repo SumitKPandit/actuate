@@ -62,7 +62,7 @@ Out for MVP (no actionable sample data): sustainability, GPS-trace replay.
 CSVs → backend/scripts/ingest.py → Postgres (trips, legs, bills, alerts, feedback)
 → marts (daily_kpi, vendor_kpi, office_kpi, shift_kpi, insight_cache)
 → FastAPI (/overview /insights /briefing[?narrate][+triggers[]] /vendors /actions[+POST /actions/{id}/ack] /ask)
-→ TanStack Start (/ brief, /dashboard, chat drawer)
+→ Vite React SPA (/ brief, /dashboard, chat drawer)
 → Sarvam sarvam-105b, reasoning_effort=None (narration only)
 ```
 
@@ -99,8 +99,9 @@ CSVs → backend/scripts/ingest.py → Postgres (trips, legs, bills, alerts, fee
 1. Ingest + normalization (pytest quirk fixtures).
 2. `analytics.py` / `reason.py` unit tests (OTA, cost/km, ranking).
 3. API tests: `/overview /insights /briefing` + `GET /actions` + `POST /actions/{id}/ack`.
-4. Brief UI (`/`) with trigger banner + safety strip + copy-for-vendor.
-5. Dashboard + vendors (`/dashboard`).
-6. Frontend↔API integration: typed `lib/ops.ts` client + vitest/msw harness (Story 09), live brief/dashboard wiring + ack write-path + delete `data.js` (Story 10).
-7. `/ask` + narration with offline fallback (allowlist + 422).
-8. Triggers (`triggers[]` in briefing, no push infra) + ack audit + README + architecture diagram + sample inputs/outputs.
+4. Mart population: rebuild daily/vendor/office/shift marts after ingest (Story 05a).
+5. Brief UI (`/`) with trigger banner + safety strip + copy-for-vendor.
+6. Dashboard + vendors (`/dashboard`).
+7. Frontend↔API integration: typed `lib/ops.ts` client + vitest/msw harness (Story 09), live brief/dashboard wiring + ack write-path + delete `data.js` (Story 10).
+8. `/ask` + narration with offline fallback (allowlist + 422).
+9. Triggers (`triggers[]` in briefing, no push infra) + ack audit + README + architecture diagram + sample inputs/outputs.
