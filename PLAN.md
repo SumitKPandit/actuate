@@ -96,5 +96,6 @@ CSVs → backend/scripts/ingest.py → Postgres (trips, legs, bills, alerts, fee
 3. API tests: `/overview /insights /briefing` + `GET /actions` + `POST /actions/{id}/ack`.
 4. Brief UI (`/`) with trigger banner + safety strip + copy-for-vendor.
 5. Dashboard + vendors (`/dashboard`).
-6. `/ask` + narration with offline fallback (allowlist + 422).
-7. Triggers (`triggers[]` in briefing, no push infra) + ack audit + README + architecture diagram + sample inputs/outputs.
+6. Frontend↔API integration: typed `lib/ops.ts` client + vitest/msw harness (Story 09), live brief/dashboard wiring + ack write-path + delete `data.js` (Story 10).
+7. `/ask` + narration with offline fallback (allowlist + 422).
+8. Triggers (`triggers[]` in briefing, no push infra) + ack audit + README + architecture diagram + sample inputs/outputs.

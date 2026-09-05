@@ -1,6 +1,6 @@
 # Story 07 — Q&A `/ask` + Narration `core/narrate.py` (LLM at edge only)
 
-**Status:** pick up after Stories 02–04. **Depends on:** 02 (KPIs), 03 (insights), 04 (API patterns + reserved `/ask`).
+**Status:** pick up after Stories 02–04 (backend work is independent of 09/10). **Depends on:** 02 (KPIs), 03 (insights), 04 (API patterns + reserved `/ask`). The frontend chat drawer consumes the typed client from Story 09 (`lib/ops.ts`) — pick up 09 before the drawer work.
 
 ## 1. Goal
 

@@ -1,6 +1,6 @@
 # Story 06 — Dashboard `/dashboard`
 
-**Status:** complete (verified 2026-09-05: dashboard elements embedded in single-page layout, all 6 KPI sections present, build + lint clean, API wiring pending Story 07). **Depends on:** 05 (`lib/ops.ts`, routing pattern, vitest harness), 04 (`/overview`, `/vendors` contracts).
+**Status:** complete (verified 2026-09-05: dashboard elements embedded in single-page layout, all 6 KPI sections present, build + lint clean). **Depends on:** 05 (SPA layout), 04 (`/overview`, `/vendors` contracts). API wiring is **not** Story 07's scope — Story 09 delivers the client/harness and Story 10 wires `/overview` + `/vendors` + URL filters live (its §3.6/§7 supersede §3.1 routing and the component-name mapping here).
 
 ## 1. Goal
 

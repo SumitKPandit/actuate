@@ -1,6 +1,6 @@
 # Story 05 — Brief UI `/` + Frontend Foundation
 
-**Status:** complete (verified 2026-09-05: static SPA prototype aligned, all components render, build + lint clean, API wiring pending Story 07). **Depends on:** 04 (`/briefing`, `/actions`, `/overview` contracts frozen); 01–03 mart data present.
+**Status:** complete (verified 2026-09-05: static SPA prototype aligned, all components render, build + lint clean). **Depends on:** 04 (`/briefing`, `/actions`, `/overview` contracts frozen); 01–03 mart data present. API wiring was deferred here but is **not** Story 07's scope — the foundation (client + harness + fixtures) is Story 09 and the data wiring is Story 10 (both supersede this SPEC's §3.4 file list and §3.2 routing, see their §7 Notes).
 
 ## 1. Goal
 
