@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import backend.models  # noqa: F401  # ensure ORM tables register on Base.metadata
 from backend.api.examples import router as examples_router
 from backend.api.health import router as health_router
+from backend.api.ops import router as ops_router
 from backend.core import database
 from backend.core.config import settings
 
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(health_router)
     app.include_router(examples_router)
+    app.include_router(ops_router)
     return app
 
 

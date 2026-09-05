@@ -21,6 +21,7 @@ class DailyKpi(Base):
     cost_per_trip: Mapped[float | None] = mapped_column(Float)
     alert_rate_per_1k: Mapped[float | None] = mapped_column(Float)
     csat_avg: Mapped[float | None] = mapped_column(Float)
+    max_trip_cost: Mapped[float | None] = mapped_column(Float)
 
 
 class VendorKpi(Base):
@@ -35,6 +36,15 @@ class VendorKpi(Base):
     alert_rate_per_1k: Mapped[float | None] = mapped_column(Float)
     csat_avg: Mapped[float | None] = mapped_column(Float)
     low_rating_share: Mapped[float | None] = mapped_column(Float)
+    delayed_trips: Mapped[int | None] = mapped_column(Integer)
+    avg_delay_min: Mapped[float | None] = mapped_column(Float)
+    no_show_rate: Mapped[float | None] = mapped_column(Float)
+    zero_km_count: Mapped[int | None] = mapped_column(Integer)
+    unslabbed_count: Mapped[int | None] = mapped_column(Integer)
+    sev1_count: Mapped[int | None] = mapped_column(Integer)
+    avg_ack_minutes: Mapped[float | None] = mapped_column(Float)
+    ack_sla_met_share: Mapped[float | None] = mapped_column(Float)
+    late_reason_counts: Mapped[dict | None] = mapped_column(JSON)
 
 
 class OfficeKpi(Base):
@@ -49,6 +59,15 @@ class OfficeKpi(Base):
     alert_rate_per_1k: Mapped[float | None] = mapped_column(Float)
     csat_avg: Mapped[float | None] = mapped_column(Float)
     low_rating_share: Mapped[float | None] = mapped_column(Float)
+    delayed_trips: Mapped[int | None] = mapped_column(Integer)
+    avg_delay_min: Mapped[float | None] = mapped_column(Float)
+    no_show_rate: Mapped[float | None] = mapped_column(Float)
+    zero_km_count: Mapped[int | None] = mapped_column(Integer)
+    unslabbed_count: Mapped[int | None] = mapped_column(Integer)
+    sev1_count: Mapped[int | None] = mapped_column(Integer)
+    avg_ack_minutes: Mapped[float | None] = mapped_column(Float)
+    ack_sla_met_share: Mapped[float | None] = mapped_column(Float)
+    late_reason_counts: Mapped[dict | None] = mapped_column(JSON)
 
 
 class InsightCache(Base):
