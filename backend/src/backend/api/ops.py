@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import get_db
+from backend.core.narrate import narrate_with_sarvam
 from backend.core.reason import BENCHMARKS, build_insights, contribution_top2
 from backend.models.marts import DailyKpi, InsightCache, OfficeKpi, VendorKpi
 
@@ -66,6 +67,7 @@ class BriefingData(BaseModel):
     insights_top5: list[dict]
     safety_open_sev1: int
     actions_top3: list[dict]
+    narrative: str | None = None
 
 
 class BriefingResponse(BaseModel):
@@ -516,6 +518,11 @@ def _utcnow():
     return datetime.now(UTC)
 
 
+def _cache_timestamp(dt: datetime | None = None):
+    """Return UTC without tzinfo for the existing TIMESTAMP column."""
+    return (dt or _utcnow()).replace(tzinfo=None)
+
+
 def _as_utc(dt):
     if dt is None:
         return None
@@ -572,8 +579,6 @@ async def get_insights(cycle: str, db: AsyncSession = Depends(get_db)):  # noqa:
 
 @router.get("/briefing")
 async def get_briefing(cycle: str, narrate: bool | None = None, db: AsyncSession = Depends(get_db)):  # noqa: B008
-    if narrate is True:
-        raise HTTPException(status_code=422, detail="narrate lands in Story 07")
     if await _is_empty(db):
         return {"data": None, "warning": EMPTY_WARNING}
     try:
@@ -587,46 +592,68 @@ async def get_briefing(cycle: str, narrate: bool | None = None, db: AsyncSession
     res = await db.execute(select(InsightCache).where(InsightCache.key == key))
     cached = res.scalars().first()
     now = _utcnow()
+    cache_now = _cache_timestamp(now)
     if cached is not None and cached.payload_json is not None and cached.computed_at is not None:
         age = (now - _as_utc(cached.computed_at)).total_seconds()
         if age < 6 * 60 * 60:
-            return {"data": cached.payload_json, "warning": None}
-    insights = await _compute_insights(db, cycle)
-    ackmap = await _ack_map(db)
-    actions = [_action_from_insight(i, ackmap) for i in insights]
-    vendor_rows_all, _, _, _ = await _load_cycle_rows(db, cycle)
-    snapshot_raw = _snapshot_from_vendor_rows(vendor_rows_all)
-    overview = _overview_from_rows(vendor_rows_all)
-    # safety uses raw sev1 sum; overview carries the same int.
-    benchmarks = _benchmarks()
-    facts = _headline_facts(
-        {
-            "ota_pct": overview.get("ota_pct"),
-            "trips": overview.get("trips"),
-            "sev1_count": overview.get("sev1_count"),
-            "csat_avg": overview.get("csat_avg"),
-            "low_rating_share": overview.get("low_rating_share"),
-            "no_show_rate": overview.get("no_show_rate"),
-        },
-        insights,
-        cycle,
-        benchmarks,
-    )
-    _ = snapshot_raw
-    payload = {
-        "generated_at": now.isoformat(),
-        "headline_facts": facts,
-        "insights_top5": insights[:5],
-        "safety_open_sev1": int(overview.get("sev1_count") or 0),
-        "actions_top3": actions[:3],
-    }
-    if cached is None:
-        db.add(InsightCache(key=key, payload_json=payload, computed_at=now))
+            payload = cached.payload_json
+        else:
+            payload = None
     else:
-        cached.payload_json = payload
-        cached.computed_at = now
-    await db.commit()
-    return {"data": payload, "warning": None}
+        payload = None
+    if payload is None:
+        insights = await _compute_insights(db, cycle)
+        ackmap = await _ack_map(db)
+        actions = [_action_from_insight(i, ackmap) for i in insights]
+        vendor_rows_all, _, _, _ = await _load_cycle_rows(db, cycle)
+        overview = _overview_from_rows(vendor_rows_all)
+        facts = _headline_facts(
+            {
+                "ota_pct": overview.get("ota_pct"),
+                "trips": overview.get("trips"),
+                "sev1_count": overview.get("sev1_count"),
+                "csat_avg": overview.get("csat_avg"),
+                "low_rating_share": overview.get("low_rating_share"),
+                "no_show_rate": overview.get("no_show_rate"),
+            },
+            insights,
+            cycle,
+            _benchmarks(),
+        )
+        payload = {
+            "generated_at": now.isoformat(),
+            "headline_facts": facts,
+            "insights_top5": insights[:5],
+            "safety_open_sev1": int(overview.get("sev1_count") or 0),
+            "actions_top3": actions[:3],
+        }
+        if cached is None:
+            db.add(InsightCache(key=key, payload_json=payload, computed_at=cache_now))
+        else:
+            cached.payload_json = payload
+            cached.computed_at = cache_now
+        await db.commit()
+
+    base_payload = {key: value for key, value in payload.items() if key != "narrative"}
+    if narrate is True:
+        quality_count = sum(
+            int(getattr(row, "unclassified_severity_count", 0) or 0)
+            for row in vendor_rows
+            if isinstance(getattr(row, "unclassified_severity_count", None), (int, float))
+        )
+        facts = {
+            "intent": "briefing",
+            "cycle": cycle,
+            "scope": {"vendor": None, "office": None},
+            "result_count": len(base_payload.get("headline_facts", [])),
+            "rows": [],
+            "headline_facts": base_payload.get("headline_facts", []),
+            "insights": base_payload.get("insights_top5", [])[:2],
+            "safety_open_sev1": base_payload.get("safety_open_sev1", 0),
+            "quality": {"unclassified_severity_count": quality_count},
+        }
+        base_payload["narrative"] = await narrate_with_sarvam(facts)
+    return {"data": base_payload, "warning": None}
 
 
 @router.get("/vendors")
@@ -767,15 +794,10 @@ async def ack_action(action_id: str, payload: AckRequest, db: AsyncSession = Dep
     now = _utcnow()
     record = {"id": action_id, "status": "acked", "actor": actor, "acked_at": now.isoformat()}
     if existing is None:
-        db.add(InsightCache(key=key, payload_json=record, computed_at=now))
+        db.add(InsightCache(key=key, payload_json=record, computed_at=_cache_timestamp(now)))
     else:
         existing.payload_json = record
-        existing.computed_at = now
+        existing.computed_at = _cache_timestamp(now)
     await db.commit()
     logger.info("action_ack id=%s actor=%s acked_at=%s", action_id, actor, record["acked_at"])
     return record
-
-
-@router.post("/ask")
-async def ask_reserved():
-    raise HTTPException(status_code=501, detail="reserved for Story 07 (NL-to-SQL over marts)")

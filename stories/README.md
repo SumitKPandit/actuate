@@ -22,7 +22,10 @@ Pickup order is numeric. Each `NN-name/` folder is one independently testable st
 - Persona: **transport manager** only (briefing is forwardable to head without rework). Surface: **brief + dashboard + Q&A**.
 - Proactive = **pull-proactive**: triggers fire on mart refresh, surface in `/briefing` without prompt. No Email/Slack push — `{fired, scope, insight_id}` stays push-ready.
 - Act = **recommend + human-ack**: `GET /actions` proposes (`proposed`), `POST /actions/{id}/ack` records approval/mock-execution. No real vendor integration.
-- Q&A = **marts-only**: allowlisted `SELECT` over `daily_kpi/vendor_kpi/office_kpi/insight_cache`, `LIMIT 50`; anything else → 422 + `supported_intents`. New questions land as new marts, never raw-table access.
+- Q&A = **marts-only**: allowlisted `SELECT` over the approved query marts
+  (`daily_kpi`, `vendor_kpi`, `office_kpi`, and `shift_kpi` for Story 07),
+  `LIMIT 50`; anything else → 422 + `supported_intents`. New questions land
+  as new marts, never raw-table access.
 
 - Persona: **transport manager** only. Surface: **brief + dashboard + Q&A**.
 - Narration: **deterministic templates first, Sarvam LLM at edge only** (1 call per briefing/Q&A, never per row).

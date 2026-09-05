@@ -422,12 +422,19 @@ def test_no_raw_table_scans(tmp_path, monkeypatch) -> None:
         client.__exit__(None, None, None)
 
 
-def test_narrate_and_ask_reserved(tmp_path, monkeypatch) -> None:
+def test_narrate_and_ask_contracts(tmp_path, monkeypatch) -> None:
     client = _start_seeded(tmp_path, monkeypatch)
     try:
         res = client.get("/briefing", params={"cycle": CUR, "narrate": True})
-        assert res.status_code == 422
+        assert res.status_code == 200
+        assert res.json()["data"]["narrative"]
         ask = client.post("/ask", json={})
-        assert ask.status_code == 501
+        assert ask.status_code == 422
     finally:
         client.__exit__(None, None, None)
+
+
+def test_cache_timestamp_matches_timezone_naive_column() -> None:
+    from backend.api.ops import _cache_timestamp
+
+    assert _cache_timestamp().tzinfo is None

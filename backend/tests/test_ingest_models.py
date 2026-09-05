@@ -35,6 +35,7 @@ def test_all_tables_exist_with_expected_columns(tmp_path, monkeypatch) -> None:
         "daily_kpi",
         "vendor_kpi",
         "office_kpi",
+        "shift_kpi",
         "insight_cache",
     ):
         assert name in tables, f"missing table {name}"
@@ -58,6 +59,7 @@ def test_all_tables_exist_with_expected_columns(tmp_path, monkeypatch) -> None:
     assert "sev1_count" in tables["daily_kpi"].c
     assert "cycle_or_month" in tables["vendor_kpi"].c
     assert "cycle_or_month" in tables["office_kpi"].c
+    assert "no_show_rate" in tables["shift_kpi"].c
     assert "payload_json" in tables["insight_cache"].c
 
 

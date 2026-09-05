@@ -60,25 +60,30 @@ Out for MVP (no actionable sample data): sustainability, GPS-trace replay.
 
 ```text
 CSVs → backend/scripts/ingest.py → Postgres (trips, legs, bills, alerts, feedback)
-→ marts (daily_kpi, vendor_kpi, office_kpi, insight_cache)
+→ marts (daily_kpi, vendor_kpi, office_kpi, shift_kpi, insight_cache)
 → FastAPI (/overview /insights /briefing[?narrate][+triggers[]] /vendors /actions[+POST /actions/{id}/ack] /ask)
 → TanStack Start (/ brief, /dashboard, chat drawer)
-→ Sarvam sarvam-30b, reasoning_effort=None (narration only)
+→ Sarvam sarvam-105b, reasoning_effort=None (narration only)
 ```
 
-- **DB:** 5 raw tables (normalized keys) + `daily_kpi, vendor_kpi, office_kpi, insight_cache`.
+- **DB:** 5 raw tables (normalized keys) +
+  `daily_kpi, vendor_kpi, office_kpi, shift_kpi, insight_cache`.
 - **Backend:** `core/analytics.py` (pure KPI fns), `core/reason.py` (benchmark + rank),
   `core/triggers.py` (thin wrapper over `reason.py` — no duplicated thresholds),
-  `core/narrate.py` (template + Sarvam via OpenAI-compatible `base_url=https://api.sarvam.ai/v1`),
-  `api/ops.py` routes. Existing `health/ready/examples` untouched.
+  `core/ask.py` (deterministic intent parser + mart query plans),
+  `core/narrate.py` (template + official asynchronous Sarvam client via
+  `https://api.sarvam.ai/v1`), `api/ask.py` and `api/ops.py` routes.
+  Existing `health/ready/examples` untouched.
 - **Frontend:** `/` brief feed (trigger banner + headline facts + safety strip + actions + copy button),
   `/dashboard` KPIs + benchmark badges + vendor table,
   chat drawer → `POST /ask` (allowlisted mart `SELECT` only; returns generated SQL + rows + narrative + `grounded_from`; 422 + `supported_intents` otherwise).
 - **Leadership-shareable:** `GET /briefing` (+ optional `?narrate=true`) returns
-  `{generated_at, headline_facts[3-5], insights_top5, safety_open_sev1, actions_top3, triggers[]}` —
-  template by default, Sarvam-narrated 2–3 sentence version on request; forwardable without rework.
+  `{generated_at, headline_facts[3-5], insights_top5, safety_open_sev1, actions_top3, triggers[], narrative?}` —
+  template by default, Sarvam-105B-narrated 2–3 sentence version on request;
+  forwardable without rework.
   Samples committed under `stories/08-triggers-docs/samples/` (or `docs/samples/`).
-- **Cost/latency:** marts keep p95 low (no raw-table scans at request time); ~1–2 sarvam-30b calls per session; briefings cached.
+- **Cost/latency:** marts keep p95 low (no raw-table scans at request time);
+  ~1–2 sarvam-105b calls per session; briefings cached.
 
 ## 6. Messy-data handling
 

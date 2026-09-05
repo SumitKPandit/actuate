@@ -1,0 +1,20 @@
+-- Upgrade volumes created before the complete Story 05 mart schema.
+ALTER TABLE daily_kpi ADD COLUMN IF NOT EXISTS max_trip_cost FLOAT;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS delayed_trips INTEGER;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS avg_delay_min FLOAT;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS no_show_rate FLOAT;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS zero_km_count INTEGER;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS unslabbed_count INTEGER;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS sev1_count INTEGER;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS avg_ack_minutes FLOAT;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS ack_sla_met_share FLOAT;
+ALTER TABLE vendor_kpi ADD COLUMN IF NOT EXISTS late_reason_counts JSONB;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS delayed_trips INTEGER;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS avg_delay_min FLOAT;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS no_show_rate FLOAT;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS zero_km_count INTEGER;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS unslabbed_count INTEGER;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS sev1_count INTEGER;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS avg_ack_minutes FLOAT;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS ack_sla_met_share FLOAT;
+ALTER TABLE office_kpi ADD COLUMN IF NOT EXISTS late_reason_counts JSONB;

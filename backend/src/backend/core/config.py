@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     cors_origins: list[str] = Field(
         default=["http://localhost:5173", "http://127.0.0.1:5173"]
     )
+    sarvam_api_key: str | None = None
+    sarvam_model: str = "sarvam-105b"
+    sarvam_timeout_seconds: float = Field(default=8.0, gt=0, le=30)
+    sarvam_max_retries: int = Field(default=0, ge=0, le=2)
 
 
 settings = Settings()

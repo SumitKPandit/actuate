@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 
-from sqlalchemy import JSON, Date, DateTime, Float, Integer, String
+from sqlalchemy import JSON, Boolean, Date, DateTime, Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.core.database import Base
@@ -22,6 +22,8 @@ class DailyKpi(Base):
     alert_rate_per_1k: Mapped[float | None] = mapped_column(Float)
     csat_avg: Mapped[float | None] = mapped_column(Float)
     max_trip_cost: Mapped[float | None] = mapped_column(Float)
+    open_sev1_count: Mapped[int | None] = mapped_column(Integer)
+    unclassified_severity_count: Mapped[int | None] = mapped_column(Integer)
 
 
 class VendorKpi(Base):
@@ -45,6 +47,9 @@ class VendorKpi(Base):
     avg_ack_minutes: Mapped[float | None] = mapped_column(Float)
     ack_sla_met_share: Mapped[float | None] = mapped_column(Float)
     late_reason_counts: Mapped[dict | None] = mapped_column(JSON)
+    open_sev1_count: Mapped[int | None] = mapped_column(Integer)
+    unclassified_severity_count: Mapped[int | None] = mapped_column(Integer)
+    cost_outlier: Mapped[bool | None] = mapped_column(Boolean)
 
 
 class OfficeKpi(Base):
@@ -68,6 +73,18 @@ class OfficeKpi(Base):
     avg_ack_minutes: Mapped[float | None] = mapped_column(Float)
     ack_sla_met_share: Mapped[float | None] = mapped_column(Float)
     late_reason_counts: Mapped[dict | None] = mapped_column(JSON)
+    open_sev1_count: Mapped[int | None] = mapped_column(Integer)
+    unclassified_severity_count: Mapped[int | None] = mapped_column(Integer)
+
+
+class ShiftKpi(Base):
+    __tablename__ = "shift_kpi"
+
+    shift_type: Mapped[str] = mapped_column(String, primary_key=True)
+    cycle_or_month: Mapped[str] = mapped_column(String(32), primary_key=True)
+    legs: Mapped[int | None] = mapped_column(Integer)
+    no_show_count: Mapped[int | None] = mapped_column(Integer)
+    no_show_rate: Mapped[float | None] = mapped_column(Float)
 
 
 class InsightCache(Base):

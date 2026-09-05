@@ -176,6 +176,7 @@ def alert_stats(alerts, trips_count):
     except (TypeError, ValueError):
         rate = None
     counts = {"Sev-1": 0, "Sev-2": 0, "Sev-3": 0, "unclassified": 0}
+    open_sev1 = 0
     ack_vals: list[float] = []
     met = 0
     denom = 0
@@ -183,6 +184,9 @@ def alert_stats(alerts, trips_count):
     for r in items:
         s = _get(r, "severity")
         counts[s if s in SEVERITIES else "unclassified"] += 1
+        state = _get(r, "state_text")
+        if s == "Sev-1" and isinstance(state, str) and state.strip().upper() == "OPEN":
+            open_sev1 += 1
         start = _get(r, "start_time")
         ack = _get(r, "acknowledge_time")
         if ack is None:
@@ -205,7 +209,8 @@ def alert_stats(alerts, trips_count):
     bd = {k: {"count": c, "share": _r2(c / total) if total else None} for k, c in counts.items()}
     return {"alerts": total, "trips": trips_count, "alert_rate_per_1k": rate, "sev1_count": counts["Sev-1"],
             "sev2_count": counts["Sev-2"], "sev_breakdown": bd, "avg_ack_minutes": avg,
-            "ack_sla_met_share": share, "unacknowledged_count": unack}
+            "ack_sla_met_share": share, "unacknowledged_count": unack,
+            "open_sev1_count": open_sev1, "unclassified_severity_count": counts["unclassified"]}
 
 
 def csat_stats(rows):

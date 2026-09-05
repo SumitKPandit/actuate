@@ -4,7 +4,7 @@ Agentic Intelligence & Reporting Layer for Enterprise Mobility
 > Scope (frozen in `PLAN.md`): persona = transport manager; surface = brief + dashboard + Q&A.
 > Loop: Sense (batch ingest → marts) → Reason (deterministic SLA/prior/peer + rank) → Act
 > (pull-proactive `triggers[]` + recommend + human-ack). LLM narrates precomputed facts only.
-> Status: Story 01 (ingest + marts) complete; Stories 02–08 build API → UI → Q&A → triggers.
+> Status: Stories 01–07 (ingest, marts, API, dashboard, Q&A, and narration) complete; Story 08 supplies triggers/docs.
 > Full endpoint/KPI/diagram/samples land in Story 08 — see `PLAN.md` + `stories/README.md` meanwhile.
 
 ## Full-stack quickstart

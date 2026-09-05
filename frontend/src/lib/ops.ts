@@ -48,6 +48,24 @@ export interface BriefingData {
   safety_open_sev1: number;
   actions_top3: ActionItem[];
   triggers?: unknown[];
+  narrative?: string | null;
+}
+
+export interface AskScope {
+  vendor?: string | null;
+  office?: string | null;
+}
+
+export interface GroundedFrom {
+  marts: string[];
+  cycle: string;
+}
+
+export interface AskResponse {
+  sql: string;
+  rows: Record<string, unknown>[];
+  narrative: string;
+  grounded_from: GroundedFrom;
 }
 
 export interface VendorRow {
@@ -120,6 +138,16 @@ async function request<T>(path: string): Promise<Envelope<T>> {
   return JSON.parse(await res.text()) as Envelope<T>;
 }
 
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${apiBase()}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new ApiError(res.status, await parseBody(res));
+  return JSON.parse(await res.text()) as T;
+}
+
 export function getOverview(cycle: string): Promise<Envelope<OverviewData>> {
   return request(withQuery('/overview', { cycle }));
 }
@@ -138,6 +166,12 @@ export function getActions(cycle: string): Promise<Envelope<ActionItem[]>> {
 
 export function getVendors(cycle: string, sort: VendorSort = 'ota'): Promise<Envelope<VendorRow[]>> {
   return request(withQuery('/vendors', { cycle, sort }));
+}
+
+export function ask(question: string, cycle: string, scope?: AskScope): Promise<AskResponse> {
+  const body: { question: string; cycle: string; scope?: AskScope } = { question, cycle };
+  if (scope !== undefined) body.scope = scope;
+  return post<AskResponse>('/ask', body);
 }
 
 export async function ackAction(id: string, actor: string): Promise<AckResponse> {

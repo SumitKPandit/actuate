@@ -151,6 +151,7 @@ export default function App() {
       <SafetyModal open={safetyModalOpen} onClose={() => setSafetyModalOpen(false)} totalOpen={briefingData?.safety_open_sev1 ?? 0} />
       <DataQualityModal open={dataQualityOpen} onClose={() => setDataQualityOpen(false)} />
       <Header cycle={cycle} cycles={cycles} onCycleChange={handleCycleChange} />
+      <ChatPanel cycle={cycle} />
 
       <main className="w-full pt-16 bg-surface-panel">
         <div className="flex flex-col w-full">
@@ -213,7 +214,6 @@ export default function App() {
                     onViewAudit={(title) => setAuditModal({ open: true, title, timestamp: new Date().toISOString() })}
                   />
                 </div>
-                <ChatPanel />
               </div>
             )}
 

@@ -242,7 +242,8 @@ def _mart_counts(engine) -> dict:
             daily = (await session.execute(text("SELECT COUNT(*) FROM daily_kpi"))).scalar()
             vendor = (await session.execute(text("SELECT COUNT(*) FROM vendor_kpi"))).scalar()
             office = (await session.execute(text("SELECT COUNT(*) FROM office_kpi"))).scalar()
-            return {"daily_kpi": daily, "vendor_kpi": vendor, "office_kpi": office}
+            shift = (await session.execute(text("SELECT COUNT(*) FROM shift_kpi"))).scalar()
+            return {"daily_kpi": daily, "vendor_kpi": vendor, "office_kpi": office, "shift_kpi": shift}
 
     return asyncio.run(_go())
 
@@ -260,6 +261,7 @@ def test_marts_populated_after_ingest(tmp_path) -> None:
     assert counts["daily_kpi"] == 2
     assert counts["vendor_kpi"] == 2
     assert counts["office_kpi"] == 2
+    assert counts["shift_kpi"] == 4
 
 
 def test_mart_values_are_correct(tmp_path) -> None:

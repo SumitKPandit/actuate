@@ -8,6 +8,7 @@ uv sync --group dev   # install deps (incl. pytest/httpx for tests)
 uv run pytest         # run tests
 
 # Dev server with auto-reload:
+PYTHONPATH=src uv run python -m backend.scripts.migrate
 uv run uvicorn backend.app:app --reload --port 8000
 ```
 
@@ -29,6 +30,8 @@ src/backend/
   api/
     health.py       # /health + /ready probes
     examples.py     # placeholder GET/POST proving the get_db pattern
+    ask.py          # deterministic marts-only POST /ask
+  migrations/       # numbered PostgreSQL upgrades
 tests/
   test_health.py
   test_readiness.py
@@ -38,7 +41,9 @@ tests/
 ## Config
 
 Copy `.env.example` to `.env` to override `APP_NAME`, `DATABASE_URL`,
-or `CORS_ORIGINS` (JSON array, defaults cover `localhost:3000`).
+`CORS_ORIGINS` (JSON array, defaults cover `localhost:3000`), or the optional
+Sarvam narration settings. `SARVAM_API_KEY` is backend-only; the API falls
+back to deterministic templates when it is absent or unavailable.
 
 ## Database
 
@@ -84,8 +89,16 @@ PYTHONPATH=src DATABASE_URL="postgresql+asyncpg://actuate:actuate@localhost:5432
 default `sqlite+aiosqlite:///./actuate.db`). Reruns are idempotent
 (`DELETE` + reload per table). Exit `2` on schema mismatch (missing
 file/column); count deviation past ±0.5% is a warning, not a failure.
-`daily_kpi` / `vendor_kpi` / `office_kpi` / `insight_cache` schemas are
-created empty here; Story 02 fills rows.
+`daily_kpi` / `vendor_kpi` / `office_kpi` / `shift_kpi` / `insight_cache` rows
+are rebuilt by ingest. For an existing PostgreSQL volume, apply the explicit
+schema migration before ingest:
+
+```bash
+PYTHONPATH=src uv run python -m backend.scripts.migrate
+```
+
+Local SQLite files are test/development artifacts; recreate `actuate.db` after
+the Story 07 model change rather than treating `create_all()` as an upgrade.
 
 Null markers (all → `NULL`, row kept, flag where listed):
 
@@ -103,16 +116,18 @@ Other rules: `trip_id`/`stwid` strip commas → `BIGINT`;
 `dq_flag='negative_km'`; `bills.total_trip_km = 0` kept with
 `is_zero_km=true`; feedback ratings stored raw incl. `0`.
 
-## Roadmap (Stories 02–08, not yet implemented)
+## Roadmap (Story 08)
 
-- Story 02 `core/analytics.py`: pure KPI math per `PLAN.md §4` (OTA >15min, cost/km excl. zero-km, CSAT excl. 0s).
-- Story 03 `core/reason.py`: SLA/prior/peer benchmarks + contribution + severity×reach rank.
-- Story 07 `core/narrate.py` + `POST /ask`: marts-only allowlisted `SELECT` (`LIMIT 50`), 422 + `supported_intents` otherwise; `GET /briefing?narrate=true` leadership paragraph (template fallback, Sarvam `sarvam-30b` when `SARVAM_API_KEY` set).
+- Story 07 `core/ask.py` + `core/narrate.py` + `POST /ask`: deterministic
+  marts-only allowlisted `SELECT` (`LIMIT 50`), nine frozen intent IDs, 422 +
+  `supported_intents` otherwise; `GET /briefing?narrate=true` leadership
+  paragraph with template fallback and optional Sarvam-105B narration. The
+  request accepts `question`, optional `cycle`, and optional exact `scope`.
 - Story 08 `core/triggers.py`: Sev-1 spike / OTA drop / cost outlier → `triggers[]` in `/briefing` + log (no push infra; `{fired,scope,insight_id}` push-ready).
 
 ## Ops API (Story 04)
 
-All routes read marts only (`daily_kpi`, `vendor_kpi`, `office_kpi`, `insight_cache`) — never raw tables. All five GETs return `{data, warning}`; empty marts → `200 {"data": null, "warning": "marts empty — run ingest"}`. `cycle` is required (`YYYY-MM-H1/H2`; `H1` = 1st–15th, `H2` = 16th–month-end); unknown/malformed → `404 {"detail": "unknown cycle", "cycle", "valid_cycles"}`.
+All routes read marts only (`daily_kpi`, `vendor_kpi`, `office_kpi`, `shift_kpi`, `insight_cache`) — never raw tables. All five GETs return `{data, warning}`; empty marts → `200 {"data": null, "warning": "marts empty — run ingest"}`. `cycle` is required (`YYYY-MM-H1/H2`; `H1` = 1st–15th, `H2` = 16th–month-end); unknown/malformed → `404 {"detail": "unknown cycle", "cycle", "valid_cycles"}`.
 
 ```bash
 curl "http://127.0.0.1:8000/overview?cycle=2026-06-H1"
@@ -123,11 +138,11 @@ curl "http://127.0.0.1:8000/overview?cycle=2026-06-H1"
 |---|---|---|---|
 | GET | `/overview` | `cycle*, office, vendor, business_unit` | KPI snapshot + `benchmarks` (from `reason.BENCHMARKS`); vendor rows default, `office=` switches to office grain, `vendor=` wins; `business_unit` accepted no-op |
 | GET | `/insights` | `cycle*` | ranked `reason.build_insights` output verbatim (computed on every read) |
-| GET | `/briefing` | `cycle*` | `{generated_at, headline_facts[3-5], insights_top5, safety_open_sev1, actions_top3}` cached as `briefing:{cycle}` for 6h; `?narrate=true` → `422` (Story 07) |
+| GET | `/briefing` | `cycle*` | `{generated_at, headline_facts[3-5], insights_top5, safety_open_sev1, actions_top3}` cached as `briefing:{cycle}` for 6h; `?narrate=true` adds an uncached `narrative` field |
 | GET | `/vendors` | `cycle*, sort=ota\|cost\|alerts\|csat, business_unit` | peer table with `peer_rank` (competition `1,2,2,4`) + `contribution_share` (top-2 map, else null) + `zero_km_count`/`unslabbed_count`; keys `ota_pct`, `alert_rate_per_1k`, `csat_avg` |
 | GET | `/actions` | `cycle*` | flattened insights `{id, action, owner, due_hint, copy_for_vendor≤500, status}`; `status` is `acked` iff `action:{id}` cached |
 | POST | `/actions/{id}/ack` | body `{actor*}` | `{id, status: "acked", actor, acked_at}` persisted to `insight_cache`; same-actor re-ack idempotent, different-actor transfers + log line; unknown id → 404 |
-| POST | `/ask` | any | `501 {"detail": "reserved for Story 07 (NL-to-SQL over marts)"}` |
+| POST | `/ask` | `{question, cycle?, scope?}` | `{sql, rows≤50, narrative, grounded_from}`; unsupported or ambiguous questions return `422` with the ordered `supported_intents` list |
 
 Local dev: after pulling, recreate mart tables in `actuate.db` (new nullable columns; `init_db` only creates missing tables).
 
@@ -156,7 +171,7 @@ Open:
 
 Notes:
 
-- `api` builds `backend/Dockerfile` and defaults to
+- `api` runs the migration runner before Uvicorn, builds `backend/Dockerfile`, and defaults to
   `DATABASE_URL="postgresql+asyncpg://actuate:actuate@db:5432/actuate"`.
 - `web` builds `frontend/Dockerfile`; `VITE_API_URL` is baked at build
   time (defaults to `http://127.0.0.1:8000` for local browsers).

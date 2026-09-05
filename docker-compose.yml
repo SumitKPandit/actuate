@@ -6,10 +6,15 @@ services:
     environment:
       APP_NAME: ${APP_NAME:-Actuate API}
       DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://actuate:actuate@db:5432/actuate}
+      SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+      SARVAM_MODEL: ${SARVAM_MODEL:-sarvam-105b}
+      SARVAM_TIMEOUT_SECONDS: ${SARVAM_TIMEOUT_SECONDS:-8}
+      SARVAM_MAX_RETRIES: ${SARVAM_MAX_RETRIES:-0}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    command: ["sh", "-c", "PYTHONPATH=src python -m backend.scripts.migrate && exec uvicorn backend.app:app --host 0.0.0.0 --port 8000"]
 
   web:
     build:

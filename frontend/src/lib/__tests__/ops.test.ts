@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
 
-import { ApiError, getActions, getBriefing, getInsights, getOverview, getVendors, ackAction } from '../ops';
+import { ApiError, ask, getActions, getBriefing, getInsights, getOverview, getVendors, ackAction } from '../ops';
 
 import { server } from '../../test-setup';
 
@@ -166,5 +166,40 @@ describe('missing env', () => {
   it('rejects with the verbatim message when VITE_API_URL is empty', async () => {
     vi.stubEnv('VITE_API_URL', '');
     await expect(getOverview('c1')).rejects.toThrow('Set VITE_API_URL in frontend/.env');
+  });
+});
+
+describe('ask', () => {
+  it('POSTs the question, active cycle, and optional scope', async () => {
+    let captured: { body: unknown; cycle: string | null } | undefined;
+    server.use(
+      http.post(`${BASE}/ask`, async ({ request }) => {
+        captured = { body: await request.json(), cycle: new URL(request.url).searchParams.get('cycle') };
+        return HttpResponse.json({
+          sql: 'SELECT 1 LIMIT 50',
+          rows: [{ vendor: 'Vendor A' }],
+          narrative: 'Grounded answer.',
+          grounded_from: { marts: ['vendor_kpi'], cycle: '2026-06-H1' },
+        });
+      }),
+    );
+    const response = await ask('show OTA by vendor', '2026-06-H1', { vendor: 'Vendor A' });
+    expect(captured).toEqual({
+      body: { question: 'show OTA by vendor', cycle: '2026-06-H1', scope: { vendor: 'Vendor A' } },
+      cycle: null,
+    });
+    expect(response.narrative).toBe('Grounded answer.');
+  });
+
+  it('passes the 422 supported-intents body through ApiError', async () => {
+    const body = { detail: 'unsupported question', supported_intents: ['ota_by_vendor'] };
+    server.use(http.post(`${BASE}/ask`, () => HttpResponse.json(body, { status: 422 })));
+    const error = await ask('show OTA', '2026-06-H1').then(
+      () => { throw new Error('expected ask to reject'); },
+      (value: unknown) => value as ApiError,
+    );
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error.status).toBe(422);
+    expect(error.body).toEqual(body);
   });
 });
