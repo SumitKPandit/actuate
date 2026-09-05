@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     app_name: str = "Actuate API"
     database_url: str = "sqlite+aiosqlite:///./actuate.db"
     cors_origins: list[str] = Field(
-        default=["http://localhost:3000", "http://127.0.0.1:3000"]
+        default=["http://localhost:5173", "http://127.0.0.1:5173"]
     )
 
 
